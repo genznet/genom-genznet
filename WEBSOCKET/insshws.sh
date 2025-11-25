@@ -31,7 +31,7 @@ sudo systemctl restart dropbear.service
 sudo systemctl enable dropbear.service
 sudo systemctl restart ws-nontls.service
 
-wget -O /usr/local/bin/ws-ovpn https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/WEBSOCKET/ws-ovpn.py
+wget -O /usr/local/bin/ws-ovpn https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/WEBSOCKET/ws-ovpn.py
 chmod +x /usr/local/bin/ws-ovpn
 
 # Installing Service
@@ -58,7 +58,7 @@ systemctl daemon-reload
 systemctl enable ws-ovpn
 systemctl restart ws-ovpn
 
-wget -O /usr/local/bin/ws-stunnel https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/WEBSOCKET/ws-stunnel
+wget -O /usr/local/bin/ws-stunnel https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/WEBSOCKET/ws-stunnel
 chmod +x /usr/local/bin/ws-stunnel
 
 # Installing Service
