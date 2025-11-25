@@ -60,9 +60,9 @@ echo -e "${BLUE}[*] IP VPS          : ${NC}${IP}"
 ns_domain_cloudflare() {
   echo -e "${BLUE}[*] Mengatur NS subdomain untuk SlowDNS...${NC}"
 
-  # Subdomain acak, contoh: abcd123.sg-ujicoba.genznet.my.id
+  # Subdomain acak, contoh: abcd123.dns.genznet.my.id
   SUB=$(tr </dev/urandom -dc a-z0-9 | head -c7)
-  NS_DOMAIN="${SUB}.sg-ujicoba.${DOMAIN}"
+  NS_DOMAIN="${SUB}.dns.${DOMAIN}"
 
   echo -e "${BLUE}[*] NS Domain SlowDNS : ${NC}${NS_DOMAIN}"
 
