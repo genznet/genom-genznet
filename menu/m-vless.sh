@@ -44,7 +44,7 @@ check_ip_and_get_info() {
 # =============================================
 
 # Ambil data dari GitHub dengan timeout
-permission_file=$(curl -s --connect-timeout 10 https://raw.githubusercontent.com/hokagelegend9999/ijin/refs/heads/main/gnome)
+permission_file=$(curl -s --connect-timeout 10 https://raw.githubusercontent.com/genznet/ijin/refs/heads/main/gnome)
 
 # Validasi file permission
 if [ -z "$permission_file" ]; then
@@ -74,7 +74,7 @@ if check_ip_and_get_info "$IP_VPS"; then
     fi
 else
     echo -e "${RED}❌ IP tidak terdaftar!${NC}"
-    echo -e "➥ Hubungi admin ${CYAN}「 ✦ @SHokageLegend ✦ 」${NC}"
+    echo -e "➥ Hubungi admin ${CYAN}「 ✦ @GENZNET ✦ 」${NC}"
     exit 1
 fi
 
@@ -1298,7 +1298,7 @@ echo -e " $COLOR1║ $NC                                                  ${NC} 
 echo -e " $COLOR1║ $NC ${WH}[${COLOR1}00${WH}]${NC} ${COLOR1}• ${WH}GO BACK${NC}          ${WH}[${COLOR1}11${WH}]${NC} ${COLOR1}• ${WH}RESTORE AKUN   ${NC}    $COLOR1║ $NC"
 echo -e " $COLOR1╚════════════════════════════════════════════════════╝${NC}"
 echo -e " $COLOR1╔═════════════════════════ ${WH}BY${NC} ${COLOR1}═══════════════════════╗ ${NC}"
-echo -e "  $COLOR1${NC}           ${WH}   • HOKAGE LEGEND STORE •                $COLOR1 $NC"
+echo -e "  $COLOR1${NC}           ${WH}   • GENZNET VPN STORE •                $COLOR1 $NC"
 echo -e " $COLOR1╚════════════════════════════════════════════════════╝${NC}"
 echo -e ""
 echo -ne " ${WH}Select menu ${COLOR1}: ${WH}"; read opt
