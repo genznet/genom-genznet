@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Warna (optional, bisa kamu modifikasi)
+COLOR1="\033[0;34m"
+NC="\033[0m" # No Color
+
+# Fungsi untuk konversi byte ke GB/MB
+convert() {
+    local bytes=$1
+    if ((bytes >= 1073741824)); then
+        printf "%.2f GB" "$(echo "$bytes / 1073741824" | bc -l)"
+    elif ((bytes >= 1048576)); then
+        printf "%.2f MB" "$(echo "$bytes / 1048576" | bc -l)"
+    elif ((bytes >= 1024)); then
+        printf "%.2f KB" "$(echo "$bytes / 1024" | bc -l)"
+    else
+        echo "${bytes} B"
+    fi
+}
+
+# Cek log
+access_log="/var/log/xray/access.log"
+if [[ ! -f $access_log ]]; then
+    echo "Log tidak ditemukan di $access_log"
+    exit 1
+fi
+
+# Waktu sekarang (dalam epoch detik)
+now=$(date +%s)
+
+# Ambil daftar user Trojan dari config.json
+vm=($(grep '^#trg' /etc/xray/config.json | awk '{print $2}' | sort -u))
+
+# Bersihkan temp
+> /tmp/vm_online
+
+# Cek user dari log
+for user in "${vm[@]}"; do
+    log_lines=$(grep "email: ${user}" "$access_log" | tail -n 100)
+    while read -r line; do
+        [[ -z "$line" ]] && continue
+
+        log_time=$(echo "$line" | awk '{print $1" "$2}')
+        log_epoch=$(date -d "$log_time" +%s 2>/dev/null)
+        [[ -z "$log_epoch" ]] && continue
+
+        age=$((now - log_epoch))
+        if (( age < 40 )); then
+            ip=$(echo "$line" | grep -oP 'from \K[0-9\.]+')
+            grep -q "$user $ip" /tmp/vm_online || echo "$user $ip" >> /tmp/vm_online
+        fi
+    done <<< "$log_lines"
+done
+
+# Output
+echo -e "${COLOR1}┌────────────────────────────────────────────┐${NC}"
+echo -e "${COLOR1}│${NC}         ${COLOR1}• TROJAN USER ONLINE •         ${NC}${COLOR1}│${NC}"
+echo -e "${COLOR1}└────────────────────────────────────────────┘${NC}"
+
+if [[ -s /tmp/vm_online ]]; then
+    for user in "${vm[@]}"; do
+        ip_count=$(grep -c "^${user} " /tmp/vm_online)
+        if (( ip_count > 0 )); then
+            usage_bytes=$(cat /etc/limit/trojan/${user} 2>/dev/null)
+            limit_bytes=$(cat /etc/trojan/${user} 2>/dev/null)
+            usage_human=$(convert "${usage_bytes:-0}")
+            limit_human=$(convert "${limit_bytes:-0}")
+
+            echo -e " ${COLOR1}USERNAME : ${NC}$user"
+            echo -e " ${COLOR1}IP LOGIN : ${NC}$ip_count"
+            echo -e " ${COLOR1}USAGE    : ${NC}$usage_human"
+            echo -e " ${COLOR1}LIMIT    : ${NC}$limit_human"
+            echo
+        fi
+    done
+else
+    echo "Tidak ada user Trojan yang aktif saat ini."
+fi
+
+echo -e "${COLOR1}└────────────────────────────────────────────┘${NC}"

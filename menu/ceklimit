@@ -1,0 +1,194 @@
+#!/bin/bash
+
+# ==============================================
+# CONFIGURATION
+# ==============================================
+
+# Color Definitions (Using $'' syntax to interpret escape codes)
+NC=$'\033[0m'          # No Color
+BG_GREEN=$'\033[42m'   # Green Background
+BG_YELLOW=$'\033[43m'  # Yellow Background
+BG_CYAN=$'\033[46m'    # Cyan Background
+BG_RED=$'\033[41m'     # Red Background
+WHITE=$'\033[1;37m'    # White Text (Bold)
+
+# Regular Colors for Content
+RED=$'\033[1;31m'      # Red
+GREEN=$'\033[1;32m'    # Green
+
+# Text Effects
+BLINK=$'\033[5m'       # Blinking
+
+# Column Widths
+col_user=12
+col_status=16
+col_jml=10
+col_ip=18
+
+# IP Limit Configuration
+ip_limit=2
+
+# ==============================================
+# FUNCTIONS
+# ==============================================
+
+center() {
+    local text="$1"
+    local width="$2"
+    local padding=$(( (width - ${#text}) / 2 ))
+    printf "%${padding}s%s%${padding}s" "" "$text" ""
+    if (( (width - ${#text}) % 2 != 0 )); then
+        printf " "
+    fi
+}
+
+make_border() {
+    echo -e "${WHITE}+------------+----------------+----------+------------------+${NC}"
+}
+
+make_header() {
+    echo -en "|"
+    echo -en "${BG_GREEN}${WHITE}$(center "USERNAME" $col_user)${NC}"
+    echo -en "|"
+    echo -en "${BG_YELLOW}${WHITE}$(center "STATUS" $col_status)${NC}"
+    echo -en "|"
+    echo -en "${BG_CYAN}${WHITE}$(center "JML" $col_jml)${NC}"
+    echo -en "|"
+    echo -en "${BG_RED}${WHITE}$(center "LIST IP" $col_ip)${NC}"
+    echo -en "|\n"
+}
+
+get_realtime_connections() {
+    # Try Xray API first
+    if command -v xray &>/dev/null && timeout 3 xray api statsquery --server=127.0.0.1:10085 &>/dev/null; then
+        conn=$(timeout 3 xray api statsquery --server=127.0.0.1:10085 2>/dev/null | \
+               jq -r '.stat[] | select(.name | startswith("user>>>")) | .name + " " + (.value|tostring)' 2>/dev/null)
+        [ -n "$conn" ] && echo "$conn" && return 0
+    fi
+
+    # Fallback to netstat
+    if command -v netstat &>/dev/null; then
+        conn=$(netstat -tnp 2>/dev/null | awk '/xray/{print $5}' | cut -d: -f1 | sort -u | grep -v "^1\.1\.1\.1$")
+        [ -n "$conn" ] && echo "$conn" && return 0
+    fi
+
+    # Fallback to ss
+    if command -v ss &>/dev/null; then
+        conn=$(ss -tnp 2>/dev/null | awk '/xray/{print $5}' | cut -d: -f1 | sort -u | grep -v "^1\.1\.1\.1$")
+        [ -n "$conn" ] && echo "$conn" && return 0
+    fi
+
+    echo "No connection data found" >&2
+    return 1
+}
+
+# ==============================================
+# MAIN SCRIPT
+# ==============================================
+
+clear
+echo "==============================================================="
+echo "           REALTIME LIMIT IP LOGIN SEMUA USER XRAY            "
+echo "==============================================================="
+echo "Last Updated: $(date +"%d-%m-%Y %H:%M:%S") | IP Limit: ${ip_limit}"
+echo ""
+
+# Display colored header
+make_border
+make_header
+make_border
+
+# Get user list
+userlist=$(grep -oP '"email"\s*:\s*"\K[^"]+' /etc/xray/config.json 2>/dev/null | sort -u)
+if [ -z "$userlist" ]; then
+    echo -e "${RED}Error: Could not get user list from Xray config${NC}"
+    exit 1
+fi
+
+# Process connections
+declare -A user_ips
+declare -A ip_counts
+
+while read -r conn; do
+    user=$(echo "$conn" | awk -F'>>>|@@' '{print $2}')
+    ip=$(echo "$conn" | awk '{print $NF}')
+
+    [ -z "$user" ] && continue
+
+    if [[ -n "$ip" && "$ip" != "1.1.1.1" ]]; then
+        if [[ -z "${user_ips[$user]}" ]]; then
+            user_ips[$user]="$ip"
+            ip_counts[$user]=1
+        else
+            if [[ ! "${user_ips[$user]}" =~ "$ip" ]]; then
+                user_ips[$user]+=",$ip"
+                ((ip_counts[$user]++))
+            fi
+        fi
+    fi
+done < <(get_realtime_connections)
+
+# Display results
+for user in $userlist; do
+    if [[ -z "${user_ips[$user]}" ]]; then
+        ip_total=0
+        ip_list="-"
+    else
+        ip_total=${ip_counts[$user]}
+        ip_list=${user_ips[$user]}
+    fi
+
+    if (( ip_total > ip_limit )); then
+        status="${RED}${BLINK}△ LIMIT!${NC}"
+        status_plain="△ LIMIT!"
+    else
+        status="${GREEN}AMAN${NC}"
+        status_plain="AMAN"
+    fi
+    
+    # Membuat string status yang sudah diberi padding
+    slen=${#status_plain}
+    pad_width=$(( col_status - slen ))
+    status_padded="${status}$(printf '%*s' $pad_width '')"
+    
+    # ================================================================= #
+    # BLOK PERCETAKAN BARIS TABEL DENGAN LOGIKA MULTI-BARIS UNTUK IP     #
+    # ================================================================= #
+
+    # Memisahkan IP menjadi array
+    if [[ "$ip_total" -gt 0 ]]; then
+        IFS=',' read -r -a ip_array <<< "$ip_list"
+    else
+        ip_array=("-") # Jika tidak ada IP, gunakan placeholder
+    fi
+
+    # Mencetak baris pertama (info user + IP pertama)
+    first_ip=${ip_array[0]}
+    printf "| %-*s | %s | %-*s |%-*s|\n" \
+        "$col_user" "$user" \
+        "$status_padded" \
+        "$col_jml" "$ip_total" \
+        "$col_ip" "$first_ip"
+
+    # Jika ada IP lain, cetak di baris baru
+    if [[ ${#ip_array[@]} -gt 1 ]]; then
+        # Buat awalan kosong untuk kolom USERNAME, STATUS, dan JML
+        blank_prefix=$(printf "| %*s | %*s | %*s " "$col_user" "" "$col_status" "" "$col_jml" "")
+        
+        # Loop untuk sisa IP
+        for i in $(seq 1 $((${#ip_array[@]} - 1))); do
+            next_ip=${ip_array[$i]}
+            # Cetak awalan kosong, lalu IP berikutnya di kolomnya
+            printf "%s|%-*s|\n" "$blank_prefix" "$col_ip" "$next_ip"
+        done
+    fi
+
+    make_border
+done
+
+# Footer
+echo ""
+echo "LEGEND:"
+echo -e "${GREEN}AMAN${NC}   - Within IP limit (≤ ${ip_limit} IPs)"
+echo -e "${RED}△ LIMIT!${NC} - Exceeds IP limit (> ${ip_limit} IPs)"
+echo "==============================================================="

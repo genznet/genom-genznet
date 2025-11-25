@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# =======================================================
+#         🎨 [ KONFIGURASI TAMPILAN ] 🎨
+# =======================================================
+export RED='\033[0;31m'
+export GREEN='\033[0;32m'
+export YELLOW='\033[0;33m'
+export BLUE='\033[0;34m'
+export CYAN='\033[0;36m'
+export WHITE='\033[97m'
+export NC='\033[0m' # No Color
+export BG_BLUE='\033[44m'
+export BOLD='\033[1m'
+# =======================================================
+
+clear
+
+# =======================================================
+#              HELPER FUNCTION: BYTE CONVERTER
+# =======================================================
+# Fungsi untuk mengubah byte menjadi format KB/MB/GB
+function con() {
+    local -i bytes=$1
+    if [[ $bytes -lt 1024 ]]; then
+        echo "${bytes}B"
+    elif [[ $bytes -lt 1048576 ]]; then
+        printf "%.2fKB" "$(bc -l <<< "$bytes/1024")"
+    elif [[ $bytes -lt 1073741824 ]]; then
+        printf "%.2fMB" "$(bc -l <<< "$bytes/1048576")"
+    else
+        printf "%.2fGB" "$(bc -l <<< "$bytes/1073741824")"
+    fi
+}
+# =======================================================
+
+# =======================================================
+#                   🖥️ [ HEADER ] 🖥️
+# =======================================================
+printf '%b\n' "${BLUE}┌───────────────────────────────────────────────┐${NC}"
+printf '%b\n' "${BLUE}│${BG_BLUE}${WHITE}${BOLD}      💻 MONITORING SEMUA PENGGUNA XRAY 💻      ${NC}${BLUE}│${NC}"
+printf '%b\n' "${BLUE}└───────────────────────────────────────────────┘${NC}"
+printf '\n'
+# =======================================================
+
+# --- Inisialisasi variabel ringkasan ---
+total_users=0
+online_users=0
+total_usage_bytes=0
+
+# --- Dapatkan daftar semua pengguna dari semua jenis layanan ---
+# Mencari semua penanda yang mungkin ada di config.json
+data=( $(grep -E "^#tr |^#trg |^#vl |^#vlg |^#vm |^#vmg " /etc/xray/config.json | cut -d ' ' -f 2 | sort | uniq) )
+
+# --- Loop utama untuk setiap pengguna ---
+for akun in "${data[@]}"; do
+    # --- 1. Deteksi Jenis Layanan Secara Otomatis ---
+    jenis=""
+    if [ -f "/etc/trojan/${akun}" ] || [ -f "/etc/trojan/akun/${akun}" ]; then
+        jenis="trojan"
+    elif [ -f "/etc/vmess/${akun}" ]; then
+        jenis="vmess"
+    elif [ -f "/etc/vless/${akun}" ]; then
+        jenis="vless"
+    else
+        continue # Lewati jika jenis tidak terdeteksi
+    fi
+    
+    total_users=$((total_users + 1))
+
+    # --- 2. Tentukan Lokasi File & Baca Data ---
+    limit_file="/etc/limit/${jenis}/${akun}"
+    quota_file="/etc/${jenis}/${akun}"
+
+    usage_bytes=$(cat "$limit_file" 2>/dev/null || echo 0)
+    quota_bytes=$(cat "$quota_file" 2>/dev/null || echo 0)
+
+    # =================================================================
+    #   PERBAIKAN FINAL: Membaca Limit IP untuk Semua Jenis Layanan
+    # =================================================================
+    ip_limit="?" # Nilai default
+
+    if [[ "$jenis" == "trojan" ]]; then
+        # Untuk Trojan, cek format file baru dulu, baru format lama
+        ip_limit_file_new="/etc/trojan/akun/${akun}"
+        ip_limit_file_old="/etc/trojan/${akun}IP"
+        if [ -f "$ip_limit_file_new" ]; then
+            ip_limit=$(grep -w "login_ip" "$ip_limit_file_new" | cut -d= -f2)
+        elif [ -f "$ip_limit_file_old" ]; then
+            ip_limit=$(cat "$ip_limit_file_old" 2>/dev/null)
+        fi
+    elif [[ "$jenis" == "vmess" ]]; then
+        ip_limit_file="/etc/vmess/${akun}IP"
+        ip_limit=$(cat "$ip_limit_file" 2>/dev/null)
+    elif [[ "$jenis" == "vless" ]]; then
+        ip_limit_file="/etc/vless/akun/${akun}"
+        if [ -f "$ip_limit_file" ]; then
+            ip_limit=$(grep -w "login_ip" "$ip_limit_file" | cut -d= -f2)
+        fi
+    fi
+    # Jika setelah semua pengecekan ip_limit masih kosong, set ke "?"
+    [ -z "$ip_limit" ] && ip_limit="?"
+    
+    # --- 3. Cek Status Online & Jumlah IP ---
+    mapfile -t ip_list < <(grep -w "$akun" /var/log/xray/access.log | tail -n 1000 | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort | uniq)
+    login_ip_count=${#ip_list[@]}
+
+    status_indicator="${RED}● Offline${NC}"
+    if [[ $login_ip_count -gt 0 ]]; then
+        status_indicator="${GREEN}● Online${NC}"
+        online_users=$((online_users + 1))
+    fi
+    
+    # --- 4. Kalkulasi & Format Kuota ---
+    total_usage_bytes=$((total_usage_bytes + usage_bytes))
+    
+    if [[ $quota_bytes -gt 0 ]]; then
+        sisa_bytes=$((quota_bytes - usage_bytes))
+        [[ $sisa_bytes -lt 0 ]] && sisa_bytes=0
+    else
+        sisa_bytes=-1 # Kode untuk unlimited
+    fi
+
+    usage_str=$(con "$usage_bytes")
+    limit_str=$( [[ $quota_bytes -gt 0 ]] && con "$quota_bytes" || echo "Unlimited" )
+    sisa_str=$( [[ $sisa_bytes -ne -1 ]] && con "$sisa_bytes" || echo "∞" )
+
+    # =======================================================
+    #                 👤 [ KARTU PENGGUNA ] 👤
+    # =======================================================
+    printf " ${CYAN}┌─[ ${BOLD}${WHITE}%-12s${NC}${CYAN} | Tipe: ${YELLOW}%-8s${NC}${CYAN} ]─┐${NC}\n" "$akun" "$jenis"
+    printf " ${CYAN}│${NC} 🚦 ${WHITE}%-12s: %b\n" "Status" "$status_indicator"
+    printf " ${CYAN}│${NC} 📥 ${WHITE}%-12s: ${RED}%s${NC}\n" "Terpakai" "$usage_str"
+    printf " ${CYAN}│${NC} 📈 ${WHITE}%-12s: ${CYAN}%s${NC}\n" "Batas Kuota" "$limit_str"
+    printf " ${CYAN}│${NC} 📊 ${WHITE}%-12s: ${GREEN}%s${NC}\n" "Sisa Kuota" "$sisa_str"
+    printf " ${CYAN}│${NC} 💻 ${WHITE}%-12s: ${WHITE}%s / %s${NC}\n" "Login IP" "$login_ip_count" "$ip_limit"
+    printf " ${CYAN}└───────────────────────────────────────────────┘${NC}\n\n"
+    # =======================================================
+
+done
+
+# =======================================================
+#                  📊 [ RINGKASAN TOTAL ] 📊
+# =======================================================
+total_usage_str=$(con "$total_usage_bytes")
+printf '%b' "${BLUE}┌─[ RINGKASAN KESELURUHAN ]───────────────────┐${NC}\n"
+printf "${BLUE}│${NC} 👥 ${WHITE}%-18s: ${GREEN}%-18s ${BLUE}│${NC}\n" "Total Akun" "$total_users"
+printf "${BLUE}│${NC} 🟢 ${WHITE}%-18s: ${GREEN}%-18s ${BLUE}│${NC}\n" "Akun Online" "$online_users"
+printf "${BLUE}│${NC} 💾 ${WHITE}%-18s: ${RED}%-18s ${BLUE}│${NC}\n" "Total Pemakaian" "$total_usage_str"
+printf '%b' "${BLUE}└───────────────────────────────────────────────┘${NC}\n"
+# =======================================================

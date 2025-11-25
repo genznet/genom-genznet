@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# ========================
+# Skrip Cek Penggunaan Kuota Xray - Versi Final Diperbaiki + Warna RAPI + Blink Online
+# ========================
+
+# Fungsi pewarnaan dengan padding agar kolom tetap rapi
+pad_and_color() {
+    # $1 = text, $2 = width, $3 = color, $4 = blink (optional)
+    text="$1"
+    width="$2"
+    color="$3"
+    blink="$4"
+    out=$(printf "%-${width}s" "$text")
+    if [ -n "$blink" ]; then
+        # \e[5m = blink
+        printf "$blink$color%s\e[0m" "$out"
+    else
+        printf "$color%s\e[0m" "$out"
+    fi
+}
+
+# Ambil daftar user/email dari config.json
+USERS=$(grep -oP '"email"\s*:\s*"\K[^"]+' /etc/xray/config.json | sort -u)
+
+if [ -z "$USERS" ]; then
+    echo "Tidak ada pengguna yang ditemukan di konfigurasi."
+    exit 0
+fi
+
+# Header
+clear
+		   echo "${COLOR_BLUE}${STYLE_BOLD}"
+		   echo ""
+echo ":::    :::  ::::::::  :::    :::     :::      ::::::::  :::::::::: "
+echo ":+:    :+: :+:    :+: :+:   :+:    :+: :+:   :+:    :+: :+:       " 
+echo "+:+    +:+ +:+    +:+ +:+  +:+    +:+   +:+  +:+        +:+        "
+echo "+#++:++#++ +#+    +:+ +#++:++    +#++:++#++: :#:        +#++:++#   "
+echo "+#+    +#+ +#+    +#+ +#+  +#+   +#+     +#+ +#+   +#+# +#+        "
+echo "#+#    #+# #+#    #+# #+#   #+#  #+#     #+# #+#    #+# #+#        "
+echo "###    ###  ########  ###    ### ###     ###  ########  ########## "
+          echo " :::    ::: :::::::::      :::   :::   :::               "
+          echo ":+:    :+: :+:    :+:   :+: :+: :+:   :+:               "
+          echo "  +:+  +:+  +:+    +:+  +:+   +:+ +:+ +:+                "
+          echo "   +#++:+   +#++:++#:  +#++:++#++: +#++:                 "
+          echo "  +#+  +#+  +#+    +#+ +#+     +#+  +#+                  "
+          echo " #+#    #+# #+#    #+# #+#     #+#  #+#                  "
+          echo " ###    ### ###    ### ###     ###  ###                  "
+echo ""
+echo "===================================================="
+echo "          PEMAKAIAN KUOTA PENGGUNA XRAY"
+echo "===================================================="
+echo "Last Update: $(date)"
+echo ""
+
+# Header tabel rapi
+border="+-----------------+-------------------------------+-------------------+-------------------+"
+header="| USERNAME        | STATUS                        | KUOTA SAAT INI    | TOTAL PENGGUNAAN  |"
+printf "%s\n" "$border"
+printf "%s\n" "$header"
+printf "%s\n" "$border"
+
+# Variabel Konfigurasi
+CONFIG_FILE="/etc/xray/config.json"
+LOG_FILE="/var/log/xray/access.log"
+API_PORT="10085"
+STATS_DIR="/var/lib/xray-stats"
+RECENT_LOG_LINES_FOR_ONLINE_STATUS=200
+
+# Fungsi format bytes
+format_bytes() {
+    local bytes=$1
+    if (( bytes < 1024 )); then
+        printf "%7s" "$bytes B"
+    elif (( bytes < 1048576 )); then
+        printf "%7.2f KB" "$(echo "scale=2; $bytes/1024" | bc)"
+    elif (( bytes < 1073741824 )); then
+        printf "%7.2f MB" "$(echo "scale=2; $bytes/1048576" | bc)"
+    else
+        printf "%7.2f GB" "$(echo "scale=2; $bytes/1073741824" | bc)"
+    fi
+}
+
+for user in $USERS; do
+    stat_file="${STATS_DIR}/${user}.log"
+    # Mengambil data statistik
+    uplink_raw=$(xray api stats --server=127.0.0.1:${API_PORT} -name "user>>>${user}>>>traffic>>>uplink" 2>/dev/null | grep -oP '"value": "\K[0-9]+' || echo 0)
+    downlink_raw=$(xray api stats --server=127.0.0.1:${API_PORT} -name "user>>>${user}>>>traffic>>>downlink" 2>/dev/null | grep -oP '"value": "\K[0-9]+' || echo 0)
+    
+    current_usage=$(( ${uplink_raw:-0} + ${downlink_raw:-0} ))
+    previous_total=$(cat "$stat_file" 2>/dev/null || echo 0)
+    new_total_usage=$(( previous_total + current_usage ))
+    echo "$new_total_usage" > "$stat_file"
+    xray api stats --server=127.0.0.1:${API_PORT} -name "user>>>${user}>>>traffic>>>uplink" -reset > /dev/null 2>&1
+    xray api stats --server=127.0.0.1:${API_PORT} -name "user>>>${user}>>>traffic>>>downlink" -reset > /dev/null 2>&1
+
+    # Cek status online
+    last_ip=""
+    line=$(tail -n "$RECENT_LOG_LINES_FOR_ONLINE_STATUS" "$LOG_FILE" | grep "email: ${user}" | grep -w "accepted" | tail -n 1)
+    if [ -n "$line" ]; then
+        ip=$(echo "$line" | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}" | head -n 1)
+        [ -n "$ip" ] && last_ip="$ip"
+    fi
+
+    # Pewarnaan status dan kolom lain (dengan padding agar rapi)
+    if [ -n "$last_ip" ]; then
+        status_text="Online ($last_ip)"
+        # \e[5m = blink
+        status_colored=$(pad_and_color "$status_text" 29 "\e[32m" "\e[5m")
+    else
+        status_text="Offline"
+        status_colored=$(pad_and_color "$status_text" 29 "\e[31m")
+    fi
+    user_colored=$(pad_and_color "$user" 15 "\e[34m")
+    current_usage_formatted=$(format_bytes $current_usage)
+    total_usage_formatted=$(format_bytes $new_total_usage)
+    cu_colored=$(pad_and_color "$current_usage_formatted" 17 "\e[33m")
+    tu_colored=$(pad_and_color "$total_usage_formatted" 17 "\e[33m")
+
+    printf "| %s | %s | %s | %s |\n" \
+        "$user_colored" "$status_colored" "$cu_colored" "$tu_colored"
+    printf "%s\n" "$border"
+done
+
+echo ""
+echo "Proses selesai."
+echo "HOKAGE LEGEND"

@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Warna untuk output agar lebih menarik
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Fungsi untuk mengatur/mengubah jadwal
+set_schedule() {
+    clear
+    echo "============================================="
+    echo "       Atur atau Ubah Jadwal Backup          "
+    echo "============================================="
+    echo ""
+    
+    read -p "Masukkan jam untuk backup (0-23): " backup_hour
+    if ! [[ "$backup_hour" =~ ^[0-9]+$ ]] || [ "$backup_hour" -lt 0 ] || [ "$backup_hour" -gt 23 ]; then
+        echo -e "${RED}Error: Jam tidak valid. Harap masukkan angka antara 0 dan 23.${NC}"
+        return 1
+    fi
+
+    read -p "Masukkan menit untuk backup (0-59): " backup_minute
+    if ! [[ "$backup_minute" =~ ^[0-9]+$ ]] || [ "$backup_minute" -lt 0 ] || [ "$backup_minute" -gt 59 ]; then
+        echo -e "${RED}Error: Menit tidak valid. Harap masukkan angka antara 0 dan 59.${NC}"
+        return 1
+    fi
+
+    read -p "Masukkan path lengkap ke skrip backup (cth: /root/manual-backup.sh): " backup_script_path
+
+    # Jika file belum ada, buat folder & file-nya
+    if [ ! -f "$backup_script_path" ]; then
+        echo -e "${YELLOW}File skrip di '$backup_script_path' tidak ditemukan.${NC}"
+        read -p "Ingin membuat file tersebut sekarang? (y/n): " confirm_create
+        if [[ "$confirm_create" =~ ^[Yy]$ ]]; then
+            folder_path=$(dirname "$backup_script_path")
+            mkdir -p "$folder_path"
+            echo -e "#!/bin/bash\n# Skrip backup otomatis\n\necho \"Backup dijalankan pada \$(date)\"" > "$backup_script_path"
+            chmod +x "$backup_script_path"
+            echo -e "${GREEN}File skrip '$backup_script_path' telah dibuat.${NC}"
+        else
+            echo -e "${RED}Operasi dibatalkan.${NC}"
+            return 1
+        fi
+    fi
+
+    # Membuat baris perintah cron baru
+    local cron_command="$backup_minute $backup_hour * * * /bin/bash $backup_script_path"
+
+    # Menghapus jadwal lama untuk skrip ini (jika ada) dan menambahkan yang baru
+    (crontab -l 2>/dev/null | grep -v "$backup_script_path" ; echo "$cron_command") | crontab -
+
+    echo ""
+    echo -e "${GREEN}Sukses! Jadwal backup telah diatur.${NC}"
+    echo "------------------------------------------------"
+    echo -e "Backup akan berjalan setiap hari pada jam ${YELLOW}${backup_hour}:${backup_minute}${NC}."
+    echo -e "Perintah di crontab: ${YELLOW}${cron_command}${NC}"
+    echo "------------------------------------------------"
+}
+
+# Fungsi untuk mematikan jadwal
+disable_schedule() {
+    clear
+    echo "============================================="
+    echo "           Matikan Jadwal Backup             "
+    echo "============================================="
+    echo ""
+
+    read -p "Masukkan path lengkap skrip backup yang jadwalnya ingin dimatikan: " backup_script_path
+
+    if [ -z "$backup_script_path" ]; then
+        echo -e "${RED}Error: Path skrip tidak boleh kosong.${NC}"
+        return 1
+    fi
+
+    crontab -l 2>/dev/null | grep -q "$backup_script_path"
+    if [ $? -ne 0 ]; then
+        echo -e "${YELLOW}Informasi: Jadwal untuk skrip '$backup_script_path' tidak ditemukan.${NC}"
+        return 1
+    fi
+
+    (crontab -l 2>/dev/null | grep -v "$backup_script_path") | crontab -
+
+    echo ""
+    echo -e "${GREEN}Sukses! Jadwal backup untuk skrip '$backup_script_path' telah dimatikan.${NC}"
+    echo "------------------------------------------------"
+}
+
+# --- Menu Utama Skrip ---
+while true; do
+    clear
+    echo "============================================="
+    echo "       Manajemen Jadwal Backup Otomatis      "
+    echo "============================================="
+    echo -e "Pilih Opsi:"
+    echo -e "1. ${GREEN}Atur / Ubah Jadwal Backup${NC}"
+    echo -e "2. ${RED}Matikan Jadwal Backup${NC}"
+    echo -e "3. ${CYAN}Keluar${NC}"
+    echo "============================================="
+    read -p "Masukkan pilihan Anda [1-3]: " choice
+
+    case $choice in
+        1)
+            set_schedule
+            read -p "Tekan [Enter] untuk kembali ke menu..."
+            ;;
+        2)
+            disable_schedule
+            read -p "Tekan [Enter] untuk kembali ke menu..."
+            ;;
+        3)
+            echo "Keluar dari skrip."
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Pilihan tidak valid. Silakan coba lagi.${NC}"
+            sleep 2
+            ;;
+    esac
+done

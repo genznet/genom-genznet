@@ -1,0 +1,180 @@
+#!/bin/bash
+# My Telegram : https://t.me/hokagevpnpremium
+# ==========================================
+# Color
+RED='\033[0;31m'
+NC='\033[0m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+LIGHT='\033[0;37m'
+# ==========================================
+
+# Fungsi untuk menampilkan progress spinner
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+# Harus dijalankan sebagai root
+if [[ $EUID -ne 0 ]]; then
+    echo -e "${RED}Skrip ini harus dijalankan sebagai root!${NC}"
+    exit 1
+fi
+
+# Cek dependensi yang dibutuhkan
+for cmd in rclone unzip wget; do
+    if ! command -v $cmd &> /dev/null; then
+        echo -e "${ORANGE}$cmd tidak ditemukan. Menginstall...${NC}"
+        apt-get update > /dev/null 2>&1
+        apt-get install -y $cmd > /dev/null 2>&1
+    fi
+done
+
+clear
+echo "=================================================="
+echo -e "      ${CYAN}MENU RESTORE DATA PENGGUNA${NC}"
+echo "=================================================="
+echo ""
+echo -e "Pilih sumber file backup:"
+echo -e "1. Restore dari File Lokal (.zip)"
+echo -e "2. Restore dari Google Drive (wget)"
+echo ""
+read -p "Masukkan pilihan [1-2]: " -r choice
+
+BACKUP_FILE_PATH=""
+DOWNLOADED_FROM_GDRIVE=false
+
+case $choice in
+    1)
+        read -p "Masukkan path lengkap ke file backup (.zip): " LOCAL_FILE
+        if [ ! -f "$LOCAL_FILE" ]; then
+            echo -e "${RED}Error: File tidak ditemukan di '$LOCAL_FILE'${NC}"
+            exit 1
+        fi
+        BACKUP_FILE_PATH=$LOCAL_FILE
+        ;;
+    2)
+        read -p "Masukkan link Google Drive: " GDRIVE_LINK
+        read -p "Masukkan nama file backup (.zip): " file_name
+        
+        BACKUP_FILE_PATH="/root/$file_name"
+        echo -e "${BLUE}Mendownload $file_name dari Google Drive...${NC}"
+        
+        (wget -q --show-progress -O "$BACKUP_FILE_PATH" "$GDRIVE_LINK") &
+        pid=$!
+        spinner $pid
+        wait $pid
+
+        if [ $? -eq 0 ]; then
+            DOWNLOADED_FROM_GDRIVE=true
+            echo -e "${GREEN}Download berhasil.${NC}"
+        else
+            echo -e "${RED}Gagal mendownload file. Pastikan link dan nama file valid.${NC}"
+            exit 1
+        fi
+        ;;
+    *)
+        echo -e "${RED}Pilihan tidak valid.${NC}"
+        exit 1
+        ;;
+esac
+
+echo ""
+if [ -z "$BACKUP_FILE_PATH" ]; then
+    echo -e "${RED}Tidak ada file backup yang dipilih. Proses berhenti.${NC}"
+    exit 1
+fi
+
+# --- KONFIRMASI PENTING ---
+echo -e "${ORANGE}==================== PERINGATAN ====================${NC}"
+echo -e "${RED}Proses ini akan menimpa semua data pengguna dan konfigurasi${NC}"
+echo -e "${RED}VMess, VLess, Trojan, dan Xray yang ada saat ini.${NC}"
+echo -e "${ORANGE}Pastikan Anda yakin sebelum melanjutkan!${NC}"
+echo -e "${ORANGE}====================================================${NC}"
+read -p "Apakah Anda yakin ingin melanjutkan proses restore? (y/N): " -r CONFIRM
+echo ""
+
+if [[ ! "$CONFIRM" =~ ^[yY]$ ]]; then
+    echo -e "${BLUE}Proses restore dibatalkan oleh pengguna.${NC}"
+    if [ "$DOWNLOADED_FROM_GDRIVE" = true ]; then
+        rm -f "$BACKUP_FILE_PATH"
+    fi
+    exit 0
+fi
+
+# --- MULAI PROSES RESTORE ---
+TEMP_RESTORE_DIR="/root/restore_temp_$(date +%s)"
+mkdir -p "$TEMP_RESTORE_DIR"
+
+echo -e "${BLUE}Mengekstrak file backup...${NC}"
+(unzip -o "$BACKUP_FILE_PATH" -d "$TEMP_RESTORE_DIR" > /dev/null 2>&1) &
+pid=$!
+spinner $pid
+wait $pid
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Gagal mengekstrak file backup. Pastikan file tidak korup.${NC}"
+    rm -rf "$TEMP_RESTORE_DIR"
+    if [ "$DOWNLOADED_FROM_GDRIVE" = true ]; then
+        rm -f "$BACKUP_FILE_PATH"
+    fi
+    exit 1
+fi
+echo -e "${GREEN}Ekstrak berhasil.${NC}"
+
+echo -e "${BLUE}Memulihkan data ke sistem...${NC}"
+
+# Bagian ini yang diubah untuk menyalin file ke lokasi yang benar
+echo -e "${BLUE}-> Memulihkan file konfigurasi Xray...${NC}"
+[ -d "$TEMP_RESTORE_DIR/xray" ] && cp -r "$TEMP_RESTORE_DIR/xray" "/etc/"
+
+echo -e "${BLUE}-> Memulihkan data pengguna (VLess, VMess, Trojan)...${NC}"
+[ -d "$TEMP_RESTORE_DIR/vless" ] && cp -r "$TEMP_RESTORE_DIR/vless" "/etc/"
+[ -d "$TEMP_RESTORE_DIR/vmess" ] && cp -r "$TEMP_RESTORE_DIR/vmess" "/etc/"
+[ -d "$TEMP_RESTORE_DIR/trojan" ] && cp -r "$TEMP_RESTORE_DIR/trojan" "/etc/"
+
+echo -e "${BLUE}-> Memulihkan data kyt...${NC}"
+[ -d "$TEMP_RESTORE_DIR/kyt" ] && cp -r "$TEMP_RESTORE_DIR/kyt" "/var/lib/"
+
+echo -e "${BLUE}-> Memulihkan file web...${NC}"
+[ -d "$TEMP_RESTORE_DIR/html" ] && cp -r "$TEMP_RESTORE_DIR/html" "/var/www/"
+
+echo -e "${BLUE}-> Memulihkan file sistem (passwd, group, dll)...${NC}"
+[ -f "$TEMP_RESTORE_DIR/passwd" ] && cp -p "$TEMP_RESTORE_DIR/passwd" "/etc/"
+[ -f "$TEMP_RESTORE_DIR/group" ] && cp -p "$TEMP_RESTORE_DIR/group" "/etc/"
+[ -f "$TEMP_RESTORE_DIR/shadow" ] && cp -p "$TEMP_RESTORE_DIR/shadow" "/etc/"
+[ -f "$TEMP_RESTORE_DIR/gshadow" ] && cp -p "$TEMP_RESTORE_DIR/gshadow" "/etc/"
+[ -f "$TEMP_RESTORE_DIR/crontab" ] && cp -p "$TEMP_RESTORE_DIR/crontab" "/etc/"
+
+echo -e "${GREEN}Data berhasil dipulihkan.${NC}"
+
+echo -e "${BLUE}Me-restart layanan terkait...${NC}"
+(systemctl restart xray > /dev/null 2>&1 && systemctl restart nginx > /dev/null 2>&1) &
+pid=$!
+spinner $pid
+wait $pid
+echo -e "${GREEN}Layanan telah di-restart.${NC}"
+
+echo -e "${BLUE}Membersihkan file sementara...${NC}"
+rm -rf "$TEMP_RESTORE_DIR"
+if [ -f "$BACKUP_FILE_PATH" ]; then
+    rm -f "$BACKUP_FILE_PATH"
+fi
+
+echo ""
+echo -e "${GREEN}==================================================${NC}"
+echo -e "      ${GREEN}✅ PROSES RESTORE SELESAI ✅${NC}"
+echo -e "${GREEN}==================================================${NC}"
+echo ""

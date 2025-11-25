@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# =======================================================
+#             🎨 [ KONFIGURASI TAMPILAN ] 🎨
+# =======================================================
+export RED='\033[0;31m'
+export GREEN='\033[0;32m'
+export YELLOW='\033[0;33m'
+export BLUE='\033[0;34m'
+export CYAN='\033[0;36m'
+export WHITE='\033[97m'
+export NC='\033[0m'
+export BG_BLUE='\033[44m'
+export BOLD='\033[1m'
+# =======================================================
+
+# Fungsi untuk konversi byte ke format yang mudah dibaca
+human_readable() {
+    local bytes=$1
+    if (( bytes < 1024 )); then
+        echo "${bytes} B"
+    elif (( bytes < 1048576 )); then
+        printf "%.2f KB\n" $(echo "$bytes / 1024" | bc -l)
+    elif (( bytes < 1073741824 )); then
+        printf "%.2f MB\n" $(echo "$bytes / 1024 / 1024" | bc -l)
+    else
+        printf "%.2f GB\n" $(echo "$bytes / 1024 / 1024 / 1024" | bc -l)
+    fi
+}
+
+clear
+# =======================================================
+#                       🖥️ [ HEADER ] 🖥️
+# =======================================================
+printf '%b\n' "${BLUE}┌───────────────────────────────────────────────┐${NC}"
+printf '%b\n' "${BLUE}│${BG_BLUE}${WHITE}${BOLD}       💻 MONITORING KUOTA PENGGUNA SSH 💻    ${NC}${BLUE}│${NC}"
+printf '%b\n' "${BLUE}└───────────────────────────────────────────────┘${NC}"
+printf '\n'
+# =======================================================
+
+USER_DIR="/etc/kuota-ssh"
+if [ ! -d "$USER_DIR" ]; then
+  echo "Direktori kuota SSH tidak ditemukan."
+  exit 1
+fi
+JUMLAH_PENGGUNA=$(find "$USER_DIR" -maxdepth 1 -type f | wc -l)
+
+# Jika tidak ada pengguna, tampilkan pesan custom dan keluar
+if [ "$JUMLAH_PENGGUNA" -eq 0 ]; then
+    echo "" # Memberi spasi
+    echo "User SSHWS belum di buat atau di temukan"
+    echo "" # Memberi spasi
+    exit 0
+fi
+total_user=0
+total_usage_bytes=0
+
+# Dapatkan daftar PID dari semua koneksi SSH yang aktif (sshd dan dropbear)
+ACTIVE_PIDS=$(ss -tnp state established | grep -oP '(sshd|dropbear).*pid=\K[0-9]+' | sort -u)
+
+# Loop untuk setiap file pengguna
+for userfile in $(ls -v $USER_DIR/*); do
+  if [ -f "$userfile" ]; then
+    source "$userfile"
+    total_user=$((total_user + 1))
+    total_usage_bytes=$((total_usage_bytes + USAGE_BYTES))
+
+    if [[ "$STATUS" == "BLOKIR" ]]; then
+        status_indicator="${RED}● DIBLOKIR${NC}"
+    else
+        is_online=false
+        online_ip=""
+
+        # Cek log dari sshd dulu
+        sshd_line=$(journalctl -u ssh.service --since "1 day ago" | grep "Accepted.* for ${USERNAME} " | tail -1)
+        if [[ -n "$sshd_line" ]]; then
+            pid_to_check=$(echo "$sshd_line" | sed -n 's/.*sshd\[\([0-9]*\)\].*/\1/p')
+            if echo "${ACTIVE_PIDS}" | grep -qw "$pid_to_check"; then
+                is_online=true
+                online_ip=$(echo "$sshd_line" | awk '{print $(NF-3)}')
+            fi
+        fi
+
+        # Jika tidak ditemukan di sshd, cek log dari dropbear
+        if [[ "$is_online" == false ]]; then
+            dropbear_line=$(journalctl --since "1 day ago" | grep "dropbear.*Password auth succeeded for '${USERNAME}'" | tail -1)
+            if [[ -n "$dropbear_line" ]]; then
+                pid_to_check=$(echo "$dropbear_line" | sed -n 's/.*dropbear\[\([0-9]*\)\].*/\1/p')
+                if echo "${ACTIVE_PIDS}" | grep -qw "$pid_to_check"; then
+                    is_online=true
+                    online_ip=$(echo "$dropbear_line" | awk -F"from " '{print $2}' | cut -d: -f1)
+                fi
+            fi
+        fi
+
+        # Tentukan tampilan status
+        if [[ "$is_online" == true ]]; then
+            status_indicator="${GREEN}● Online (${online_ip})${NC}"
+        else
+            status_indicator="${RED}● Offline${NC}"
+        fi
+    fi
+
+    limit_hr=$(human_readable $LIMIT_BYTES)
+    usage_hr=$(human_readable $USAGE_BYTES)
+    remaining_bytes=$((LIMIT_BYTES - USAGE_BYTES))
+    [ $remaining_bytes -lt 0 ] && remaining_bytes=0
+    remaining_hr=$(human_readable $remaining_bytes)
+
+    # =======================================================
+    #                👤 [ KARTU PENGGUNA ] 👤
+    # =======================================================
+    printf " ${CYAN}┌─[ PENGGUNA: ${BOLD}${GREEN}%s${NC}${CYAN} ]${NC}\n" "$USERNAME"
+    printf " ${CYAN}│${NC} 🚦 ${WHITE}%-10s: %b\n" "Status" "$status_indicator"
+    printf " ${CYAN}│${NC} 📈 ${WHITE}%-10s: ${YELLOW}%s${NC}\n" "Limit" "$limit_hr"
+    printf " ${CYAN}│${NC} 📥 ${WHITE}%-10s: ${RED}%s${NC}\n" "Terpakai" "$usage_hr"
+    printf " ${CYAN}│${NC} 📊 ${WHITE}%-10s: ${GREEN}%s${NC}\n" "Sisa" "$remaining_hr"
+    printf " ${CYAN}└──────────────────────────────────────────${NC}\n\n"
+    # =======================================================
+  fi
+done
+
+total_usage_hr=$(human_readable $total_usage_bytes)
+
+# =======================================================
+#                   📊 [ RINGKASAN TOTAL ] 📊
+# =======================================================
+printf '%b' "${BLUE}┌─[ RINGKASAN ]───────────────────────────┐${NC}\n"
+printf "${BLUE}│${NC} 👥 ${WHITE}%-16s: ${GREEN}%-18s ${BLUE}│${NC}\n" "Total Pengguna" "$total_user"
+printf "${BLUE}│${NC} 💾 ${WHITE}%-16s: ${RED}%-18s ${BLUE}│${NC}\n" "Total Pemakaian" "$total_usage_hr"
+printf '%b' "${BLUE}└───────────────────────────────────────────┘${NC}\n"
+# =======================================================

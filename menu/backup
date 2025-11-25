@@ -1,0 +1,179 @@
+#!/bin/bash
+# ==========================================
+# Color
+RED='\033[0;31m'
+NC='\033[0m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+LIGHT='\033[0;37m'
+# ==========================================
+
+# Fungsi untuk menampilkan progress spinner
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+# --- PERSIAPAN ---
+clear
+echo -e "${GREEN}Mempersiapkan proses backup...${NC}"
+IP=$(curl -sS ipv4.icanhazip.com)
+domain=$(cat /etc/xray/domain 2>/dev/null || echo "Tidak ada domain")
+timestamp=$(date +"%Y%m%d_%H%M%S")
+
+# Direktori dan nama file backup
+BACKUP_DIR="/root/backup_${timestamp}"
+BACKUP_FILE_NAME="backup_${IP}_${timestamp}.zip"
+BACKUP_FILE_PATH="/root/${BACKUP_FILE_NAME}"
+
+# Membuat direktori backup
+echo -e "${BLUE}Membuat direktori backup sementara...${NC}"
+mkdir -p "$BACKUP_DIR" || {
+    echo -e "${RED}Gagal membuat direktori backup${NC}"
+    exit 1
+}
+
+# --- PROSES COPY FILE ---
+files_to_backup=("/etc/passwd" "/etc/group" "/etc/shadow" "/etc/gshadow" "/etc/crontab")
+dirs_to_backup=("/etc/vless" "/etc/vmess" "/etc/trojan" "/var/lib/kyt" "/etc/xray" "/var/www/html")
+
+echo -e "${BLUE}Menyalin file sistem...${NC}"
+for file in "${files_to_backup[@]}"; do
+    [ -f "$file" ] && cp -p "$file" "$BACKUP_DIR/"
+done
+
+echo -e "${BLUE}Menyalin data pengguna dan konfigurasi...${NC}"
+for dir in "${dirs_to_backup[@]}"; do
+    if [ -d "$dir" ]; then
+        echo -e "${GREEN} -> Folder ditemukan: $dir ${NC}"
+        cp -r "$dir" "$BACKUP_DIR/"
+    else
+        echo -e "${ORANGE} -> Folder dilewati (tidak ada): $dir ${NC}"
+    fi
+done
+
+# --- MEMBUAT ARSIP ZIP ---
+echo -e "${BLUE}Membuat file ZIP backup...${NC}"
+cd "$BACKUP_DIR" || exit 1
+(zip -r "$BACKUP_FILE_PATH" . > /dev/null 2>&1) &
+pid=$!
+spinner $pid
+wait $pid
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Gagal membuat file ZIP backup${NC}"
+    rm -rf "$BACKUP_DIR"
+    exit 1
+else
+    echo -e "${GREEN}File ZIP backup berhasil dibuat: ${LIGHT}$BACKUP_FILE_NAME${NC}"
+fi
+
+# --- UPLOAD KE GOOGLE DRIVE (JIKA ADA Rclone) ---
+link="Tidak tersedia"
+if command -v rclone &> /dev/null; then
+    echo -e "${BLUE}Mengupload backup ke Google Drive...${NC}"
+    (rclone copy "$BACKUP_FILE_PATH" dr:backup/ > /dev/null 2>&1) &
+    pid=$!
+    spinner $pid
+    wait $pid
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Gagal mengupload backup ke Google Drive${NC}"
+    else
+        echo -e "${GREEN}Upload ke Google Drive berhasil${NC}"
+        echo -e "${BLUE}Mendapatkan link download...${NC}"
+        link=$(rclone link dr:backup/"$BACKUP_FILE_NAME" 2>/dev/null)
+        if [[ -z "$link" || ! "$link" =~ "id=" ]]; then
+            echo -e "${RED}Gagal mendapatkan link Google Drive${NC}"
+            link="Tidak tersedia"
+        fi
+    fi
+else
+    echo -e "${ORANGE}rclone tidak terinstall, melewati upload ke Google Drive.${NC}"
+fi
+
+# --- PENGIRIMAN KE TELEGRAM (KONDISIONAL) ---
+if [ -f "/usr/bin/idchat" ] && [ -f "/usr/bin/token" ]; then
+    echo -e "${BLUE}Konfigurasi bot Telegram ditemukan. Mengirim notifikasi...${NC}"
+    CHATID=$(cat /usr/bin/idchat)
+    KEY=$(cat /usr/bin/token)
+    TIME="10"
+    URL="https://api.telegram.org/bot$KEY/sendMessage"
+    LOCATION=$(curl -s ipinfo.io | jq -r '.city + ", " + .country')
+
+    TEXT="
+<b>🚨 Backup Notification 🚨</b>
+━━━━━━━━━━━━━━━━━━
+<i>Detail server Anda telah berhasil di-backup.</i>
+
+🖥️ <b>VPS Info</b>
+┣ <b>IP Address:</b> <code>${IP}</code>
+┣ <b>Domain:</b> <code>${domain}</code>
+┗ <b>Lokasi:</b> <code>${LOCATION}</code>
+
+💾 <b>Backup Details</b>
+┣ <b>Nama File:</b> <code>${BACKUP_FILE_NAME}</code>
+┣ <b>Waktu:</b> <code>$(date '+%d %B %Y, %H:%M:%S') WIB</code>
+┗ <b>Status:</b> ✅ Berhasil
+
+📎 <b>Download Link</b>
+<a href=\"${link}\">Klik Disini Untuk Download</a>
+"
+    # Kirim notifikasi teks
+    curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" "$URL" >/dev/null
+
+    # Kirim file backup
+    echo -e "${BLUE}Mengirim file backup ke Telegram (mungkin perlu waktu)...${NC}"
+    (curl --max-time 180 -F "chat_id=${CHATID}" \
+         -F "document=@${BACKUP_FILE_PATH}" \
+         -F "caption=File backup: ${BACKUP_FILE_NAME}" \
+         https://api.telegram.org/bot${KEY}/sendDocument > /dev/null 2>&1) &
+    pid=$!
+    spinner $pid
+    wait $pid
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}File backup berhasil dikirim ke Telegram.${NC}"
+    else
+        echo -e "${RED}Gagal mengirim file backup (Mungkin ukuran file > 50MB).${NC}"
+    fi
+else
+    echo -e "${ORANGE}Konfigurasi bot Telegram tidak ditemukan, melewati pengiriman notifikasi.${NC}"
+fi
+
+# --- HASIL AKHIR DI TERMINAL ---
+echo ""
+echo -e "============================================================"
+echo -e "${CYAN}                PROSES BACKUP SELESAI                 ${NC}"
+echo -e "============================================================"
+echo -e "${GREEN}Nama File    :${NC} ${LIGHT}${BACKUP_FILE_NAME}${NC}"
+echo -e "${GREEN}Lokasi File  :${NC} ${LIGHT}${BACKUP_FILE_PATH}${NC}"
+echo ""
+
+if [ "$link" != "Tidak tersedia" ]; then
+    echo -e "${GREEN}Link Download (Google Drive):${NC}"
+    echo -e "${LIGHT}${link}${NC}"
+    # Hapus file lokal hanya jika upload berhasil
+    echo ""
+    echo -e "${BLUE}Membersihkan file backup lokal...${NC}"
+    rm -f "$BACKUP_FILE_PATH"
+else
+    echo -e "${RED}Upload ke Google Drive GAGAL atau dilewati.${NC}"
+    echo -e "${ORANGE}Silakan download file backup secara manual dari lokasi di atas.${NC}"
+fi
+echo -e "============================================================"
+echo ""
+
+# --- PEMBERSIHAN AKHIR ---
+echo -e "${BLUE}Membersihkan direktori kerja sementara...${NC}"
+rm -rf "$BACKUP_DIR"
+echo "Selesai."

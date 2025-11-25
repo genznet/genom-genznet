@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Alamat server API Xray
+API_SERVER="127.0.0.1:10085"
+
+# Loop untuk setiap jenis layanan
+for jenis in trojan vless vmess; do
+    dir="/etc/${jenis}/akun"
+    if [[ -d "$dir" ]]; then
+        for userfile in "$dir"/*; do
+            if [[ ! -f "$userfile" || "$userfile" == *log* ]]; then
+                continue
+            fi
+
+            username=$(grep -w "username" "$userfile" | cut -d= -f2)
+            [[ -z "$username" ]] && continue
+
+            user_identifier=$username
+            if [[ "$jenis" == "trojan" ]]; then
+                user_identifier=$(grep -w "password" "$userfile" | cut -d= -f2)
+            fi
+
+            uplink_tag="user>>>${user_identifier}>>>traffic>>>uplink"
+            downlink_tag="user>>>${user_identifier}>>>traffic>>>downlink"
+
+            # === PERUBAHAN DI SINI: Menggunakan -pattern bukan -name ===
+            uplink_bytes=$(/usr/local/bin/xray api statsquery --server=${API_SERVER} -pattern "${uplink_tag}" | grep -o '"value": "[0-9]*"' | awk -F'"' '{print $4}')
+            downlink_bytes=$(/usr/local/bin/xray api statsquery --server=${API_SERVER} -pattern "${downlink_tag}" | grep -o '"value": "[0-9]*"' | awk -F'"' '{print $4}')
+
+            uplink_bytes=${uplink_bytes:-0}
+            downlink_bytes=${downlink_bytes:-0}
+
+            total_bytes=$((uplink_bytes + downlink_bytes))
+            usage_mb=$(awk "BEGIN {printf \"%.0f\", ${total_bytes} / 1024 / 1024}")
+
+            sed -i "s/usage_quota=.*/usage_quota=${usage_mb}MB/" "$userfile"
+
+            echo "Updated usage for ${username}: ${usage_mb}MB"
+        done
+    fi
+done
+
+echo "Proses update kuota selesai."
