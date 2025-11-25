@@ -54,7 +54,7 @@ check_ip_and_get_info() {
 
 # Ambil data lisensi dari GitHub dengan timeout
 echo -e "${GREEN}⌛ Mengambil data lisensi...${NC}"
-permission_file=$(curl -sL --connect-timeout 10 https://github.com/hokagelegend9999/ijin/raw/refs/heads/main/genom-pro)
+permission_file=$(curl -sL --connect-timeout 10 https://github.com/genznet/ijin/raw/refs/heads/main/genom-pro)
 
 # Validasi file permission
 if [ -z "$permission_file" ]; then
@@ -92,7 +92,7 @@ if check_ip_and_get_info "$IP_VPS"; then
     sleep 2
 else
     echo -e "${RED}❌ IP tidak terdaftar!${NC}"
-    echo -e "➥ Hubungi admin ${CYAN}「 ✦ @HokageLegend ✦ 」${NC}"
+    echo -e "➥ Hubungi admin ${CYAN}「 ✦ @Genznet ✦ 」${NC}"
     exit 1
 fi
 
@@ -170,7 +170,7 @@ while true; do
             echo -e "\n${YELLOW}Mempersiapkan instalasi Bot Telegram...${NC}"
             cd /root
             rm -f install-boot
-            wget -q https://github.com/hokagelegend9999/Telegram-bot/raw/refs/heads/main/install-boot && chmod +x install-boot && ./install-boot
+            wget -q https://github.com/genznet/Telegram-bot-genznet/raw/refs/heads/main/install-boot && chmod +x install-boot && ./install-boot
             read -n 1 -s -r -p "Instalasi selesai. Tekan tombol apa saja untuk kembali..."
             ;;
         2)
