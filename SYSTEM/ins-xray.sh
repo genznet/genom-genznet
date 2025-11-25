@@ -20,7 +20,7 @@ cd
 if [[ -e /etc/xray/domain ]]; then
 domain=$(cat /etc/xray/domain)
 else
-domain="hokagelegend.web.id"
+domain="genznet.my.id"
 fi
 sleep 0.5
 mkdir -p /etc/xray
