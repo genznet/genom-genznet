@@ -3,7 +3,7 @@
 
 
 
-wget -O /usr/local/bin/ws-dropbear https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/WEBSOCKET/ws-dropbear
+wget -O /usr/local/bin/ws-dropbear https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/WEBSOCKET/ws-dropbear
 chmod +x /usr/local/bin/ws-dropbear
 
 # Installing Service
@@ -37,8 +37,8 @@ chmod +x /usr/local/bin/ws-ovpn
 # Installing Service
 cat > /etc/systemd/system/ws-ovpn.service << END
 [Unit]
-Description=Python Proxy Mod By HOKAGE LEGEND
-Documentation=https://t.me/hokagelegend1
+Description=Python Proxy Mod By GENZNET
+Documentation=https://t.me/genznet_vpn
 After=network.target nss-lookup.target
 
 [Service]
