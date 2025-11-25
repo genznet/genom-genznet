@@ -2,17 +2,17 @@
 
 apt install rclone
 printf "q\n" | rclone config
-wget -O /root/.config/rclone/rclone.conf "https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/SYSTEM/rclone.conf"
+wget -O /root/.config/rclone/rclone.conf "https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/SYSTEM/rclone.conf"
 git clone  https://github.com/casper9/wondershaper.git
 cd wondershaper
 make install
 cd
 rm -rf wondershaper
 cd /usr/bin
-wget -O backup "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/menu/backup"
-wget -O restore "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/menu/restore"
-wget -O cleaner "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/SYSTEM/cleaner.sh"
-wget -O xp "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/SYSTEM/xp.sh"
+wget -O backup "https://github.com/genznet/genom-genznet/raw/refs/heads/main/menu/backup"
+wget -O restore "https://github.com/genznet/genom-genznet/raw/refs/heads/main/menu/restore"
+wget -O cleaner "https://github.com/genznet/genom-genznet/raw/refs/heads/main/SYSTEM/cleaner.sh"
+wget -O xp "https://github.com/genznet/genom-genznet/raw/refs/heads/main/SYSTEM/xp.sh"
 chmod +x /usr/bin/backup
 chmod +x /usr/bin/restore
 chmod +x /usr/bin/cleaner
@@ -51,7 +51,7 @@ service cron restart > /dev/null 2>&1
 
 # > Pasang Limit
 
-wget "https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/TOOLS/limit.sh" >/dev/null 2>&1
+wget "https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/TOOLS/limit.sh" >/dev/null 2>&1
 
 chmod +x limit.sh && bash limit.sh >/dev/null 2>&1
     
