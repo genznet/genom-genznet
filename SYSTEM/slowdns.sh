@@ -42,10 +42,10 @@ service sshd restart
 #konfigurasi slowdns
 rm -rf /etc/slowdns
 mkdir -m 777 /etc/slowdns
-wget -q -O /etc/slowdns/server.key "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/SLOWDNS/server.key"
-wget -q -O /etc/slowdns/server.pub "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/SLOWDNS/server.pub"
-wget -q -O /etc/slowdns/sldns-server "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/SLOWDNS/dnstt-server"
-wget -q -O /etc/slowdns/sldns-client "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/SLOWDNS/dnstt-client"
+wget -q -O /etc/slowdns/server.key "https://github.com/genznet/genom-genznet/raw/refs/heads/main/SLOWDNS/server.key"
+wget -q -O /etc/slowdns/server.pub "https://github.com/genznet/genom-genznet/raw/refs/heads/main/SLOWDNS/server.pub"
+wget -q -O /etc/slowdns/sldns-server "https://github.com/genznet/genom-genznet/raw/refs/heads/main/SLOWDNS/dnstt-server"
+wget -q -O /etc/slowdns/sldns-client "https://github.com/genznet/genom-genznet/raw/refs/heads/main/SLOWDNS/dnstt-client"
 cd
 chmod +x /etc/slowdns/server.key
 chmod +x /etc/slowdns/server.pub
