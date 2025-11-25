@@ -59,7 +59,7 @@ curl -F chat_id="${ID}" \
 ◈ DOMAIN  : ${domain}
 ◈ Tanggal : ${date}
 ◈ Version   : v.3.0 Original 
-◈ Built By  : @HookageLegend 
+◈ Built By  : @Genznet 
 ================================= 
 ➣ How To Restore ?
 ➣ Use SFTP
@@ -74,7 +74,7 @@ cd /root
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e " ${PINK}      ❐ MENU MANUAL BACKUP ❐ ${NC}"
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e " ${ORANGE}  🍀 POWERED BY @HookageLegend 🍀  ${NC}"
+echo -e " ${ORANGE}  🍀 POWERED BY @GENZNET 🍀  ${NC}"
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" 
 echo -e " ${GREEN}      ❐ Successfully Backup ❐${NC}"
@@ -84,7 +84,7 @@ echo -e " ${GREEN} File backup terkirim ke Telegram BOT.${NC}"
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e " ${PURPLE}   Terimakasih Telah Menggunakan-${NC}"
-echo -e " ${PURPLE}  Script Credit By  HOKAGE LEGEND STORE${NC}"
+echo -e " ${PURPLE}  Script Credit By  GENZNETVPN STORE${NC}"
 echo -e " ${TEAL}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 exit 0
 fi
