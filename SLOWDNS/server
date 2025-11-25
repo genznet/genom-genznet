@@ -1,14 +1,20 @@
 [Unit]
-Description=Server SlowDNS
-Documentation=https://www.google.com/
+Description=Server SlowDNS (DNSTT)
+Documentation=https://github.com/ycd/dnstt
 After=network.target nss-lookup.target
+
 [Service]
 Type=simple
 User=root
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
-ExecStart=/etc/slowdns/dnstt-server -udp :5300 -privkey-file /etc/slowdns/server.key xxxx 127.0.0.1:443
+
+# xxxx = NS domain (akan di-replace lewat script install)
+# Forward ke 127.0.0.1:443 (bisa diganti sesuai server Xray kamu)
+ExecStart=/etc/slowdns/dnstt-server -udp 178.128.103.67:5300 -privkey-file /etc/slowdns/server.key xxxx 127.0.0.1:443
+
 Restart=on-failure
+
 [Install]
 WantedBy=multi-user.target
