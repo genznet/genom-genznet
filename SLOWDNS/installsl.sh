@@ -13,19 +13,19 @@ red='\e[1;31m'
 green='\e[0;32m'
 yell='\e[1;33m'
 NC='\e[0m'
-echo "SLOWDNS BY HOKAGE LEGEND" | lolcat
+echo "SLOWDNS BY Genznet" | lolcat
 echo "Progress..." | lolcat
 sleep 3 
 cd
 
 ns_domain_cloudflare() {
-	DOMAIN=hokagelegend.web.id
+	DOMAIN=genznet.my.id
 	DOMAIN_PATH=$(cat /etc/xray/domain)
 	SUB=$(tr </dev/urandom -dc a-z0-9 | head -c7)
-	SUB_DOMAIN=${SUB}.hokagelegend.web.id
-	NS_DOMAIN=${SUB_DOMAIN}.sg-ujicoba.hokagelegend.web.id
-	CF_ID=faridaumiabi@gmail.com
-        CF_KEY=ab8d0901acb186291e58f21359d07e7b847dc
+	SUB_DOMAIN=${SUB}.genznet.my.id
+	NS_DOMAIN=${SUB_DOMAIN}.sg-ujicoba.genznet.my.id
+	CF_ID=agen006.29@gmail.com
+        CF_KEY=6cfefe09bcd3a368e34b5ce8346f90c861c6c
 	set -euo pipefail
 	IP=$(wget -qO- ipinfo.io/ip)
 	echo "Updating DNS NS for ${NS_DOMAIN}..."
@@ -67,15 +67,15 @@ ns_domain_cloudflare() {
 setup_dnstt() {
 	cd
 	mkdir -p /etc/slowdns
-	wget -O dnstt-server "https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/SLOWDNS/dnstt-server" >/dev/null 2>&1
+	wget -O dnstt-server "https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/SLOWDNS/dnstt-server" >/dev/null 2>&1
 	chmod +x dnstt-server >/dev/null 2>&1
-	wget -O dnstt-client "https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main//SLOWDNS/dnstt-client" >/dev/null 2>&1
+	wget -O dnstt-client "https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main//SLOWDNS/dnstt-client" >/dev/null 2>&1
 	chmod +x dnstt-client >/dev/null 2>&1
 	./dnstt-server -gen-key -privkey-file server.key -pubkey-file server.pub
 	chmod +x *
 	mv * /etc/slowdns
-	wget -O /etc/systemd/system/client.service "https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/SLOWDNS/client" >/dev/null 2>&1
-	wget -O /etc/systemd/system/server.service "https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/SLOWDNS/server" >/dev/null 2>&1
+	wget -O /etc/systemd/system/client.service "https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/SLOWDNS/client" >/dev/null 2>&1
+	wget -O /etc/systemd/system/server.service "https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/SLOWDNS/server" >/dev/null 2>&1
 	sed -i "s/xxxx/$NS_DOMAIN/g" /etc/systemd/system/client.service 
 	sed -i "s/xxxx/$NS_DOMAIN/g" /etc/systemd/system/server.service 
 }
