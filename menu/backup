@@ -19,7 +19,7 @@ spinner() {
     while ps -p $pid > /dev/null; do
         local temp=${spinstr#?}
         printf " [%c]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
+        spinstr=$temp${spinstr%"$temp"}
         sleep $delay
         printf "\b\b\b\b\b\b"
     done
@@ -79,22 +79,39 @@ else
     echo -e "${GREEN}File ZIP backup berhasil dibuat: ${LIGHT}$BACKUP_FILE_NAME${NC}"
 fi
 
-# --- UPLOAD KE GOOGLE DRIVE (JIKA ADA Rclone) ---
+# --- STATUS ---
+UPLOAD_OK=0
+LINK_OK=0
 link="Tidak tersedia"
+
+# --- UPLOAD KE GOOGLE DRIVE (JIKA ADA rclone) ---
+# Pastikan nama remote di rclone.conf adalah [gdrive]
 if command -v rclone &> /dev/null; then
     echo -e "${BLUE}Mengupload backup ke Google Drive...${NC}"
-    (rclone copy "$BACKUP_FILE_PATH" gdrive:backup/ > /dev/null 2>&1) &
+    (rclone copy "$BACKUP_FILE_PATH" gdrive:backup/ > /tmp/rclone_upload.log 2>&1) &
     pid=$!
     spinner $pid
     wait $pid
     if [ $? -ne 0 ]; then
         echo -e "${RED}Gagal mengupload backup ke Google Drive${NC}"
+        echo -e "${ORANGE}Detail error tersimpan di: /tmp/rclone_upload.log${NC}"
+        UPLOAD_OK=0
     else
         echo -e "${GREEN}Upload ke Google Drive berhasil${NC}"
+        UPLOAD_OK=1
+
         echo -e "${BLUE}Mendapatkan link download...${NC}"
-        link=$(rclone link dr:backup/"$BACKUP_FILE_NAME" 2>/dev/null)
-        if [[ -z "$link" || ! "$link" =~ "id=" ]]; then
+        # Simpan error link jika ada
+        link=$(rclone link "gdrive:backup/${BACKUP_FILE_NAME}" 2>/tmp/rclone_link.log)
+
+        # Anggap link berhasil kalau tidak kosong
+        if [ -n "$link" ]; then
+            LINK_OK=1
+            echo -e "${GREEN}Link Google Drive berhasil diambil.${NC}"
+        else
+            LINK_OK=0
             echo -e "${RED}Gagal mendapatkan link Google Drive${NC}"
+            echo -e "${ORANGE}Detail error tersimpan di: /tmp/rclone_link.log${NC}"
             link="Tidak tersedia"
         fi
     fi
@@ -111,6 +128,16 @@ if [ -f "/usr/bin/idchat" ] && [ -f "/usr/bin/token" ]; then
     URL="https://api.telegram.org/bot$KEY/sendMessage"
     LOCATION=$(curl -s ipinfo.io | jq -r '.city + ", " + .country')
 
+    if [ $LINK_OK -eq 1 ]; then
+        LINK_PART="
+📎 <b>Download Link</b>
+<a href=\"${link}\">Klik Disini Untuk Download</a>"
+    else
+        LINK_PART="
+📎 <b>Download Link</b>
+<i>Tidak tersedia (upload gagal atau link tidak bisa diambil)</i>"
+    fi
+
     TEXT="
 <b>🚨 Backup Notification 🚨</b>
 ━━━━━━━━━━━━━━━━━━
@@ -125,12 +152,12 @@ if [ -f "/usr/bin/idchat" ] && [ -f "/usr/bin/token" ]; then
 ┣ <b>Nama File:</b> <code>${BACKUP_FILE_NAME}</code>
 ┣ <b>Waktu:</b> <code>$(date '+%d %B %Y, %H:%M:%S') WIB</code>
 ┗ <b>Status:</b> ✅ Berhasil
-
-📎 <b>Download Link</b>
-<a href=\"${link}\">Klik Disini Untuk Download</a>
+${LINK_PART}
 "
     # Kirim notifikasi teks
-    curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" "$URL" >/dev/null
+    curl -s --max-time $TIME \
+        -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" \
+        "$URL" >/dev/null
 
     # Kirim file backup
     echo -e "${BLUE}Mengirim file backup ke Telegram (mungkin perlu waktu)...${NC}"
@@ -144,7 +171,7 @@ if [ -f "/usr/bin/idchat" ] && [ -f "/usr/bin/token" ]; then
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}File backup berhasil dikirim ke Telegram.${NC}"
     else
-        echo -e "${RED}Gagal mengirim file backup (Mungkin ukuran file > 50MB).${NC}"
+        echo -e "${RED}Gagal mengirim file backup (mungkin ukuran file > 50MB).${NC}"
     fi
 else
     echo -e "${ORANGE}Konfigurasi bot Telegram tidak ditemukan, melewati pengiriman notifikasi.${NC}"
@@ -159,13 +186,17 @@ echo -e "${GREEN}Nama File    :${NC} ${LIGHT}${BACKUP_FILE_NAME}${NC}"
 echo -e "${GREEN}Lokasi File  :${NC} ${LIGHT}${BACKUP_FILE_PATH}${NC}"
 echo ""
 
-if [ "$link" != "Tidak tersedia" ]; then
-    echo -e "${GREEN}Link Download (Google Drive):${NC}"
-    echo -e "${LIGHT}${link}${NC}"
-    # Hapus file lokal hanya jika upload berhasil
-    echo ""
-    echo -e "${BLUE}Membersihkan file backup lokal...${NC}"
-    rm -f "$BACKUP_FILE_PATH"
+if [ $UPLOAD_OK -eq 1 ]; then
+    if [ $LINK_OK -eq 1 ]; then
+        echo -e "${GREEN}Link Download (Google Drive):${NC}"
+        echo -e "${LIGHT}${link}${NC}"
+        echo ""
+        echo -e "${BLUE}Membersihkan file backup lokal...${NC}"
+        rm -f "$BACKUP_FILE_PATH"
+    else
+        echo -e "${ORANGE}Upload ke Google Drive BERHASIL, tetapi link tidak dapat diambil.${NC}"
+        echo -e "${ORANGE}Silakan cek folder 'backup' di Google Drive secara manual.${NC}"
+    fi
 else
     echo -e "${RED}Upload ke Google Drive GAGAL atau dilewati.${NC}"
     echo -e "${ORANGE}Silakan download file backup secara manual dari lokasi di atas.${NC}"
