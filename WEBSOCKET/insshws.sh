@@ -64,8 +64,8 @@ chmod +x /usr/local/bin/ws-stunnel
 # Installing Service
 cat > /etc/systemd/system/ws-stunnel.service << END
 [Unit]
-Description=Python Proxy Mod By HOKAGE LEGEND
-Documentation=https://t.me/hokagelegend1
+Description=Python Proxy Mod By GENZNET
+Documentation=https://t.me/genznet_vpn
 After=network.target nss-lookup.target
 
 [Service]
