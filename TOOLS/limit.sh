@@ -20,7 +20,7 @@ systemctl enable --now limittrojan
 systemctl enable --now limitshadowsocks
 
 cd
-wget -q -O /usr/bin/limit-ip "https://github.com/hokagelegend9999/genom/raw/refs/heads/main/TOOLS/limit-ip"
+wget -q -O /usr/bin/limit-ip "https://github.com/genznet/genom-genznet/raw/refs/heads/main/TOOLS/limit-ip"
 chmod +x /usr/bin/*
 cd /usr/bin
 sed -i 's/\r//' limit-ip
