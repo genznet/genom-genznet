@@ -479,7 +479,7 @@ echo -e "$COLOR1 ${NC} ${WH}http://$domain:89/trojan-$user.txt${NC}" | tee -a /e
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/trojan/akun/log-create-${user}.log
 echo -e "$COLOR1 ${NC} ${WH}Expired Until   ${COLOR1}: ${WH}$timer Minutes" | tee -a /etc/trojan/akun/log-create-${user}.log
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/trojan/akun/log-create-${user}.log
-echo -e "$COLOR1 ${NC} ${WH}  •HOKAGE LEGEND PREMIUM •     " | tee -a /etc/trojan/akun/log-create-${user}.log
+echo -e "$COLOR1 ${NC} ${WH}  •GENZNET VPN PREMIUM •     " | tee -a /etc/trojan/akun/log-create-${user}.log
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/trojan/akun/log-create-${user}.log
 echo "" | tee -a /etc/trojan/akun/log-create-${user}.log
 systemctl restart xray > /dev/null 2>&1
