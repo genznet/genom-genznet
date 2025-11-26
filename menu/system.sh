@@ -204,7 +204,7 @@ function domain() {
 
     # Fungsi instalasi slowdns
     install_slowdns() {
-        local script_url="https://raw.githubusercontent.com/hokagelegend9999/genom/refs/heads/main/SLOWDNS/installsl.sh"
+        local script_url="https://raw.githubusercontent.com/genznet/genom-genznet/refs/heads/main/SLOWDNS/installsl.sh"
         local output_file="installsl.sh"
         
         echo -e "${COLOR1}Mengunduh SlowDNS...${NC}"
