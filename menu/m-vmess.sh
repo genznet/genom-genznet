@@ -490,7 +490,7 @@ echo -e "$COLOR1 ${NC} ${WH}http://$domain:89/vmess-$user.txt${NC}" | tee -a /et
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ${NC} ${WH}Expired Akun    ${COLOR1}: ${WH}$exp" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/vmess/akun/log-create-${user}.log
-echo -e "$COLOR1 ${NC} ${WH}  • HOKAGE LEGEND STORE •     " | tee -a /etc/vmess/akun/log-create-${user}.log
+echo -e "$COLOR1 ${NC} ${WH}  • GENZNET VPN STORE •     " | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo "" | tee -a /etc/vmess/akun/log-create-${user}.log
 systemctl restart xray > /dev/null 2>&1
@@ -806,7 +806,7 @@ echo -e "$COLOR1 ${NC} ${WH}http://$domain:89/vmess-$user.txt${NC}" | tee -a /et
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ${NC} ${WH}Expired Until     ${COLOR1}: ${WH}$timer Minutes" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/vmess/akun/log-create-${user}.log
-echo -e "$COLOR1 ${NC} ${WH}    • HOKAGE LEGEND STORE •     " | tee -a /etc/vmess/akun/log-create-${user}.log
+echo -e "$COLOR1 ${NC} ${WH}    • GENZNET VPN STORE •     " | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ◇━━━━━━━━━━━━━━━━━◇ ${NC}" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo "" | tee -a /etc/vmess/akun/log-create-${user}.log
 systemctl restart xray > /dev/null 2>&1
