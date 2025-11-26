@@ -135,7 +135,11 @@ read -n 1 -s -r -p "Press any key to back on menu"
 add-tr
 fi
 done
-uuid=$(cat /proc/sys/kernel/random/uuid)
+# UUID manual + random
+read -p "Uuid (Manual): " uuid
+if [ -z "$uuid" ]; then
+    uuid=$(cat /proc/sys/kernel/random/uuid)
+fi
 until [[ $masaaktif =~ ^[0-9]+$ ]]; do
 read -p "Expired (hari): " masaaktif
 done
