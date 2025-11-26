@@ -174,7 +174,10 @@ systemctl start badvpn3
 # setting port ssh
 cd
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-sed -i '/Port 22/a Port 200' /etc/ssh/sshd_config
+# aktifkan port 22 kalau masih di-comment
+sed -i 's/^#Port 22/Port 22/' /etc/ssh/sshd_config
+# tambahkan port 200 di bawah Port 22 (opsional)
+sed -i '/^Port 22/a Port 200' /etc/ssh/sshd_config
 
 /etc/init.d/ssh restart
 
