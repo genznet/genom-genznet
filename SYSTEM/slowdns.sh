@@ -56,8 +56,8 @@ cd
 #install client-sldns.service
 cat > /etc/systemd/system/client-sldns.service << END
 [Unit]
-Description=Client SlowDNS By Hokage
-Documentation=https://t.me/hokagelegend1
+Description=Client SlowDNS By GENZNET
+Documentation=https://t.me/genznet_vpn
 After=network.target nss-lookup.target
 
 [Service]
@@ -77,8 +77,8 @@ cd
 #install server-sldns.service
 cat > /etc/systemd/system/server-sldns.service << END
 [Unit]
-Description=Server SlowDNS By Hokage Legend
-Documentation=https://t.me/hokagelegend1
+Description=Server SlowDNS By GENZNET
+Documentation=https://t.me/genznet_vpn
 After=network.target nss-lookup.target
 
 [Service]
