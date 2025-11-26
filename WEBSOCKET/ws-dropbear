@@ -15,8 +15,8 @@ BUFLEN = 4096 * 4
 TIMEOUT = 60
 DEFAULT_HOST = '127.0.0.1:109'
 
-# RESPONSE HTTP 101 Switching Protocols (Telah Dihapus 'HOKAGE LEGEND YOUTUBE' dari sini)
-RESPONSE = 'HTTP/1.1 101 <b><font color="green">!!.. Konek..cuyy..!!!</font><p style="text-align:center"><b><font color="green"><b>||=========</font><font color="#8A95FF"> ===========</font><font color="#3FFFAD"> ==========|| </font><b><font color="red">===||| HOKAGE LEGEND YOUTOUBE |||== </font></b>\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: foo\r\n\r\n'
+# RESPONSE HTTP 101 Switching Protocols (Telah Dihapus 'GENZNET' dari sini)
+RESPONSE = 'HTTP/1.1 101 <b><font color="green">!!.. Konek..cuyy..!!!</font><p style="text-align:center"><b><font color="green"><b>||=========</font><font color="#8A95FF"> ===========</font><font color="#3FFFAD"> ==========|| </font><b><font color="red">===||| GENZNET |||== </font></b>\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: foo\r\n\r\n'
 
 class Server(threading.Thread):
     def __init__(self, host, port):
