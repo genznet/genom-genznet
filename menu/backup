@@ -83,7 +83,7 @@ fi
 link="Tidak tersedia"
 if command -v rclone &> /dev/null; then
     echo -e "${BLUE}Mengupload backup ke Google Drive...${NC}"
-    (rclone copy "$BACKUP_FILE_PATH" dr:backup/ > /dev/null 2>&1) &
+    (rclone copy "$BACKUP_FILE_PATH" gdrive:backup/ > /dev/null 2>&1) &
     pid=$!
     spinner $pid
     wait $pid
