@@ -136,7 +136,7 @@ add-tr
 fi
 done
 # UUID manual + random
-read -p "Uuid (Manual): " uuid
+read -p "Uuid (Manual, kosong = random): " uuid
 if [ -z "$uuid" ]; then
     uuid=$(cat /proc/sys/kernel/random/uuid)
 fi
