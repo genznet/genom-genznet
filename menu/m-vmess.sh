@@ -136,7 +136,19 @@ read -n 1 -s -r -p "Press any key to back"
 add-vmess
 fi
 done
-uuid=$(cat /proc/sys/kernel/random/uuid)
+
+# ==== INPUT UUID (CUSTOM / RANDOM) ====
+echo ""
+read -rp "Uuid (Manual, kosong = random): " -e uuid_manual
+if [[ -z "$uuid_manual" ]]; then
+    # Jika dikosongkan, pakai UUID random
+    uuid=$(cat /proc/sys/kernel/random/uuid)
+else
+    # Jika diisi, pakai UUID custom
+    uuid="$uuid_manual"
+fi
+# ======================================
+
 until [[ $masaaktif =~ ^[0-9]+$ ]]; do
 read -p "Expired (hari): " masaaktif
 done
@@ -212,9 +224,6 @@ grpc=`cat<<EOF
 "tls": "tls"
 }
 EOF`
-vmess_base641=$( base64 -w 0 <<< $vmess_json1)
-vmess_base642=$( base64 -w 0 <<< $vmess_json2)
-vmess_base643=$( base64 -w 0 <<< $vmess_json3)
 vmesslink1="vmess://$(echo $asu | base64 -w 0)"
 vmesslink2="vmess://$(echo $ask | base64 -w 0)"
 vmesslink3="vmess://$(echo $grpc | base64 -w 0)"
@@ -460,9 +469,7 @@ echo -e "$COLOR1 ${NC} ${WH}ISP           ${COLOR1}: ${WH}$ISP" | tee -a /etc/vm
 echo -e "$COLOR1 ${NC} ${WH}City          ${COLOR1}: ${WH}$CITY" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ${NC} ${WH}Domain        ${COLOR1}: ${WH}${domain}" | tee -a /etc/vmess/akun/log-create-${user}.log
 echo -e "$COLOR1 ${NC} ${WH}Login Limit  ${COLOR1}: ${WH}${iplim} IP" | tee -a /etc/vmess/akun/log-create-${user}.log
-if [ ${Quota} = '9999' ]; then
-echo -ne
-else
+if [ ${Quota} != '9999' ]; then
 echo -e "$COLOR1 ${NC} ${WH}Quota Limit  ${COLOR1}: ${WH}${Quota} GB" | tee -a /etc/vmess/akun/log-create-${user}.log
 fi
 echo -e "$COLOR1 ${NC} ${WH}Port TLS      ${COLOR1}: ${WH}443" | tee -a /etc/vmess/akun/log-create-${user}.log
