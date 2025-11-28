@@ -369,13 +369,13 @@ echo -e "$COLOR1│ ${WH}[${COLOR1}04${WH}]${NC} ${COLOR1}• ${WH}TRJAN    ${WH
 echo -e "$COLOR1│ ${WH}[${COLOR1}05${WH}]${NC} ${COLOR1}• ${WH}BACKUP   ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}10${WH}]${NC} ${COLOR1}• ${WH}SETTING  ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
 echo -e "$COLOR1│                                                   $COLOR1│ $NC"
 echo -e "${BLUE}╭═══════${PURPLE}══════ • ${GREEN}GENZNET VPN STORE${YELLOW} • ${RED}═══════════════╮${NC}"
-echo -e "${CYAN}│PILIH NOMOR${NC} ${CYAN}[11] ${WH}🌐 WILDCARD CLOUDFLARE 🌐         ${NC}│"
-echo -e "${CYAN}│PILIH NOMOR${NC} ${CYAN}[12] ${WH}🔍 MELIHAT USER YANG ONLINE 🔍    ${NC}│"
-echo -e "${YELLOW}╰══${GREEN}══════════════════${BLUE}═════════${PURPLE}═══════════════════${RED}╯${NC}"
+echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}[11] ${WH}🌐 WILDCARD CLOUDFLARE 🌐         ${NC}│"
+echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}[12] ${WH}🔍 MELIHAT USER YANG ONLINE 🔍    ${NC}│"
+echo -e "${YELLOW}╰══${GREEN}══════════════════${BLUE}═════════${PURPLE}═════════════════════${RED}╯${NC}"
 
 echo -e "${MAGENTA}╭═══════${CYAN}══════ • ${RED}GENOM SCRIPT PRO${BLUE} • ${GREEN}════════════════╮${NC}"
 echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}  [15]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC}│"
-echo -e "${BLUE}╰══${RED}════════════════${GREEN}═════════${CYAN}═════════════════════${MAGENTA}╯${NC}"
+echo -e "${BLUE}╰══${RED}════════════════${GREEN}═════════${CYAN}═══════════════════════${MAGENTA}╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
 echo -e "$COLOR1│ ${WH}Traffic${NC}      ${WH}Today     Yesterday       Month       ${NC}"
