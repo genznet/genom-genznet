@@ -378,8 +378,8 @@ echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}  [15]    ${WH}🧬 AKSESS GENOM PR
 echo -e "${BLUE}╰══${RED}════════════════${GREEN}═════════${CYAN}════════════════════════${MAGENTA}╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
-echo -e "$COLOR1│ ${WH}Traffic${NC}      ${WH}Today     Yesterday       Month       ${NC}"
-echo -e "$COLOR1│ ${COLOR1}Total${NC}    ${COLOR1}  $todayd $today_v    $yesterday $yesterday_v     $month $month_v$COLOR1  ${NC} "
+echo -e "$COLOR1│ ${WH}Traffic${NC}      ${WH}Today     Yesterday       Month      | ${NC}"
+echo -e "$COLOR1│ ${COLOR1}Total${NC}    ${COLOR1}  $todayd $today_v    $yesterday $yesterday_v     $month $month_v$COLOR1 | ${NC} "
 echo -e "$COLOR1╰═══════════════════════════════════════════════════╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
