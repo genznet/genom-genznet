@@ -367,7 +367,7 @@ echo -e "$COLOR1│ ${WH}[${COLOR1}02${WH}]${NC} ${COLOR1}• ${WH}VMESS    ${WH
 echo -e "$COLOR1│ ${WH}[${COLOR1}03${WH}]${NC} ${COLOR1}• ${WH}VLESS    ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}08${WH}]${NC} ${COLOR1}• ${WH}REBOOT   ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
 echo -e "$COLOR1│ ${WH}[${COLOR1}04${WH}]${NC} ${COLOR1}• ${WH}TRJAN    ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}09${WH}]${NC} ${COLOR1}• ${WH}UPDATE   ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
 echo -e "$COLOR1│ ${WH}[${COLOR1}05${WH}]${NC} ${COLOR1}• ${WH}BACKUP   ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}10${WH}]${NC} ${COLOR1}• ${WH}SETTING  ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
-echo -e "$COLOR1╰══════════════════════════════════════════════════╯ $NC"
+echo -e "$COLOR1╰═══════════════════════════════════════════════════╯ $NC"
 
 echo -e "${GREEN}╭═══════${GREEN}══════ • ${GREEN}GENZNET VPN STORE${GREEN} • ${GREEN}═══════════════╮${NC}"
 echo -e "${GREEN}│${WH}PILIH NOMOR${NC} ${CYAN}[11] ${WH}🌐 WILDCARD CLOUDFLARE 🌐        ${GREEN} │${NC}"
@@ -375,7 +375,7 @@ echo -e "${GREEN}│${WH}PILIH NOMOR${NC} ${CYAN}[12] ${WH}🔍 MELIHAT USER YAN
 echo -e "${GREEN}╰══${GREEN}══════════════════${GREEN}═════════${GREEN}══════════════════════${GREEN}╯${NC}"
 
 echo -e "${RED}╭═══════${RED}══════ • ${RED}GENOM SCRIPT PRO${RED} • ${RED}════════════════╮${NC}"
-echo -e "${RED}│${ORANGE}PILIH NOMOR${NC} ${CYAN}[15]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC} ${RED} │"
+echo -e "${RED}│${WH}PILIH NOMOR${NC} ${CYAN}[15]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC} ${RED} │"
 echo -e "${RED}╰══${RED}════════════════${RED}═════════${RED}════════════════════════${RED}╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
