@@ -382,15 +382,13 @@ echo -e "$COLOR1│ ${WH}Traffic${NC}      ${WH}Today     Yesterday       Month 
 echo -e "$COLOR1│ ${COLOR1}Total${NC}    ${COLOR1}  $todayd $today_v    $yesterday $yesterday_v     $month $month_v$COLOR1  ${NC} "
 echo -e "$COLOR1╰═══════════════════════════════════════════════════╯${NC}"
 
-echo -e "${COLOR1}╭─────────────────────────────────────────────────────────────╮${NC}"
-echo -e "${COLOR1}│ ┌─────────────────────────────────────────────────────────┐ │${NC}"
-echo -e "${COLOR1}│ │ ${WH}Versi Script  ${COLOR1}: ${WH}$(cat /opt/.ver) Latest Version${NC}       ${COLOR1}│ │${NC}"
-echo -e "${COLOR1}│ │ ${WH}Author        ${COLOR1}: ${WH}GENZNET VPN STORE${NC}                  ${COLOR1}│ │${NC}"
-echo -e "${COLOR1}│ │ ${WH}Client        ${COLOR1}: ${WH}$client_name${NC}                        ${COLOR1}│ │${NC}"
-echo -e "${COLOR1}│ │ ${WH}Sisa Hari     ${COLOR1}: ${WH}$days_remaining hari${NC}               ${COLOR1}│ │${NC}"
-echo -e "${COLOR1}│ │ ${WH}Expire Date   ${COLOR1}: ${WH}$exp_date${NC}                           ${COLOR1}│ │${NC}"
-echo -e "${COLOR1}│ └─────────────────────────────────────────────────────────┘ │${NC}"
-echo -e "${COLOR1}╰─────────────────────────────────────────────────────────────╯${NC}"
+echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
+echo -e "$COLOR1│ $NC ${WH}Versi Script  ${COLOR1}: ${WH}$(cat /opt/.ver) Latest Version${NC}$COLOR1"
+echo -e "$COLOR1│ $NC ${WH}Author        ${COLOR1}: ${WH}GENZNET VPN STORE${NC}$COLOR1"
+echo -e "$COLOR1│ $NC ${WH}Client        ${COLOR1}: ${WH}$client_name${NC}"
+echo -e "$COLOR1│ $NC ${WH}Sisa Hari     ${COLOR1}: ${WH}$days_remaining hari${NC}"
+echo -e "$COLOR1│ $NC ${WH}Expire Date   ${COLOR1}: ${WH}$exp_date${NC}"
+echo -e "$COLOR1╰═══════════════════════════════════════════════════╯${NC}"
 echo -e ""
 echo -ne " ${WH}Select menu ${COLOR1}: ${WH}"; read opt
 case $opt in
