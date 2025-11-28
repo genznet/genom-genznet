@@ -137,7 +137,16 @@ read -n 1 -s -r -p "Press any key to back"
 add-vless
 fi
 done
-uuid=$(cat /proc/sys/kernel/random/uuid)
+
+# ====== INPUT UUID MANUAL / RANDOM ======
+echo ""
+read -rp "Uuid (Manual, kosong = random): " -e uuid_manual
+if [[ -z "$uuid_manual" ]]; then
+    uuid=$(cat /proc/sys/kernel/random/uuid)
+else
+    uuid="$uuid_manual"
+fi
+# =======================================
 until [[ $masaaktif =~ ^[0-9]+$ ]]; do
 read -p "Expired (hari): " masaaktif
 done
