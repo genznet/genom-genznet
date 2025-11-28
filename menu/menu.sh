@@ -367,7 +367,8 @@ echo -e "$COLOR1│ ${WH}[${COLOR1}02${WH}]${NC} ${COLOR1}• ${WH}VMESS    ${WH
 echo -e "$COLOR1│ ${WH}[${COLOR1}03${WH}]${NC} ${COLOR1}• ${WH}VLESS    ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}08${WH}]${NC} ${COLOR1}• ${WH}REBOOT   ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
 echo -e "$COLOR1│ ${WH}[${COLOR1}04${WH}]${NC} ${COLOR1}• ${WH}TRJAN    ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}09${WH}]${NC} ${COLOR1}• ${WH}UPDATE   ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
 echo -e "$COLOR1│ ${WH}[${COLOR1}05${WH}]${NC} ${COLOR1}• ${WH}BACKUP   ${WH}[${COLOR1}Menu${WH}]     ${WH}[${COLOR1}10${WH}]${NC} ${COLOR1}• ${WH}SETTING  ${WH}[${COLOR1}Menu${WH}]$COLOR1 │ $NC"
-echo -e "$COLOR1│                                                   $COLOR1│ $NC"
+echo -e "$COLOR1╰══════════════════════════════════════════════════════════════════════╯ $NC"
+
 echo -e "${GREEN}╭═══════${GREEN}══════ • ${GREEN}GENZNET VPN STORE${GREEN} • ${GREEN}═══════════════╮${NC}"
 echo -e "${GREEN}│${ORANGE}PILIH NOMOR${NC} ${CYAN}[11] ${WH}🌐 WILDCARD CLOUDFLARE 🌐        ${GREEN} │${NC}"
 echo -e "${GREEN}│${ORANGE}PILIH NOMOR${NC} ${CYAN}[12] ${WH}🔍 MELIHAT USER YANG ONLINE 🔍  ${GREEN}  │${NC}"
