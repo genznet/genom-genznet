@@ -342,7 +342,7 @@ echo -e "$COLOR1╰════════════════════�
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
 echo -e "$COLOR1│ $NC${WH}❈ System OS          ${COLOR1}: ${WH}$MODEL2         ${COLOR1}│${NC}"
 echo -e "$COLOR1│ $NC${WH}❈ Memory Usage       ${COLOR1}: ${WH}$uram - $tram              ${COLOR1}│${NC}"
-echo -e "$COLOR1│ $NC${WH}❈ Core & CPU Usage   ${COLOR1}: ${WH}$CORE GB & $cpu_usage                 ${COLOR1}│${NC}"
+echo -e "$COLOR1│ $NC${WH}❈ Core & CPU Usage   ${COLOR1}: ${WH}$CORE GB & $cpu_usage               ${COLOR1}│${NC}"
 echo -e "$COLOR1│ $NC${WH}❈ ISP                ${COLOR1}: ${WH}$ISP          ${COLOR1}│${NC}"
 echo -e "$COLOR1│ $NC${WH}❈ City               ${COLOR1}: ${WH}$CITY                  ${COLOR1}│${NC}"
 echo -e "$COLOR1│ $NC${WH}❈ Domain             ${COLOR1}: ${WH}$(cat /etc/xray/domain)          ${COLOR1}│${NC}"
