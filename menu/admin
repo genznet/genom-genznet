@@ -144,7 +144,7 @@ show_main_menu() {
     echo -e "$BLUE╔════════════════════════════════════════════════════╗${NC}"
     echo -e "$BLUE║${CYAN}     🚀   S T A T U S   S E R V E R   🚀            ${BLUE}║${NC}"
     echo -e "$BLUE╠════════════════════════════════════════════════════╣${NC}"
-    echo -e "$BLUE║${WH}🌐WS:$status_ws |${WH}⚡XRAY:$status_xray | ${WH}🖥️ NGINX:$status_nginx |${WH}👾DB:$status_beruangjatuh | ${WH}🤖BOT:$status_bot${BLUE}║${NC}"
+    echo -e "$BLUE║${WH}🌐WS:$status_ws |${WH}⚡XRAY:$status_xray | ${WH}🖥️ NGINX:$status_nginx |${WH}👾DB:$status_beruangjatuh | ${WH}BOT:$status_bot${BLUE}║${NC}"
     echo -e "$BLUE╚════════════════════════════════════════════════════╝${NC}"
 
     # --- MENU UTAMA BARU ---
