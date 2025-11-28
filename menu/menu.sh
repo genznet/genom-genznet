@@ -374,7 +374,7 @@ echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}[12] ${WH}🔍 MELIHAT USER YANG ON
 echo -e "${YELLOW}╰══${GREEN}══════════════════${BLUE}═════════${PURPLE}══════════════════════${RED}╯${NC}"
 
 echo -e "${MAGENTA}╭═══════${CYAN}══════ • ${RED}GENOM SCRIPT PRO${BLUE} • ${GREEN}════════════════╮${NC}"
-echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}  [15]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC}│"
+echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}[15]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC}│"
 echo -e "${BLUE}╰══${RED}════════════════${GREEN}═════════${CYAN}════════════════════════${MAGENTA}╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
@@ -383,7 +383,7 @@ echo -e "$COLOR1│ ${COLOR1}Total${NC}    ${COLOR1}  $todayd $today_v    $yeste
 echo -e "$COLOR1╰═══════════════════════════════════════════════════╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
-echo -e "$COLOR1│ $NC ${WH}Versi Script  ${COLOR1}: ${WH}$(cat /opt/.ver) Latest Version               │ ${NC}$COLOR1"
+echo -e "$COLOR1│ $NC ${WH}Versi Script  ${COLOR1}: ${WH}$(cat /opt/.ver) Latest Version               $COLOR1│ ${NC}$COLOR1"
 echo -e "$COLOR1│ $NC ${WH}Author        ${COLOR1}: ${WH}GENZNET VPN STORE                │ ${NC}$COLOR1"
 echo -e "$COLOR1│ $NC ${WH}Client        ${COLOR1}: ${WH}$client_name                          │ ${NC}"
 echo -e "$COLOR1│ $NC ${WH}Sisa Hari     ${COLOR1}: ${WH}$days_remaining hari                       │ ${NC}"
