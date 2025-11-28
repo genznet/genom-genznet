@@ -378,16 +378,16 @@ echo -e "${YELLOW}│PILIH NOMOR${NC} ${CYAN}  [15]    ${WH}🧬 AKSESS GENOM PR
 echo -e "${BLUE}╰══${RED}════════════════${GREEN}═════════${CYAN}════════════════════════${MAGENTA}╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
-echo -e "$COLOR1│ ${WH}Traffic${NC}      ${WH}Today     Yesterday       Month      | ${NC}"
-echo -e "$COLOR1│ ${COLOR1}Total${NC}    ${COLOR1}  $todayd $today_v    $yesterday $yesterday_v     $month $month_v$COLOR1  | ${NC} "
+echo -e "$COLOR1│ ${WH}Traffic${NC}      ${WH}Today     Yesterday       Month      │ ${NC}"
+echo -e "$COLOR1│ ${COLOR1}Total${NC}    ${COLOR1}  $todayd $today_v    $yesterday $yesterday_v     $month $month_v$COLOR1  │ ${NC} "
 echo -e "$COLOR1╰═══════════════════════════════════════════════════╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
-echo -e "$COLOR1│ $NC ${WH}Versi Script  ${COLOR1}: ${WH}$(cat /opt/.ver) Latest Version               | ${NC}$COLOR1"
-echo -e "$COLOR1│ $NC ${WH}Author        ${COLOR1}: ${WH}GENZNET VPN STORE                | ${NC}$COLOR1"
-echo -e "$COLOR1│ $NC ${WH}Client        ${COLOR1}: ${WH}$client_name                          | ${NC}"
-echo -e "$COLOR1│ $NC ${WH}Sisa Hari     ${COLOR1}: ${WH}$days_remaining hari                       | ${NC}"
-echo -e "$COLOR1│ $NC ${WH}Expire Date   ${COLOR1}: ${WH}$exp_date                       | ${NC}"
+echo -e "$COLOR1│ $NC ${WH}Versi Script  ${COLOR1}: ${WH}$(cat /opt/.ver) Latest Version               │ ${NC}$COLOR1"
+echo -e "$COLOR1│ $NC ${WH}Author        ${COLOR1}: ${WH}GENZNET VPN STORE                │ ${NC}$COLOR1"
+echo -e "$COLOR1│ $NC ${WH}Client        ${COLOR1}: ${WH}$client_name                          │ ${NC}"
+echo -e "$COLOR1│ $NC ${WH}Sisa Hari     ${COLOR1}: ${WH}$days_remaining hari                       │ ${NC}"
+echo -e "$COLOR1│ $NC ${WH}Expire Date   ${COLOR1}: ${WH}$exp_date                       │ ${NC}"
 echo -e "$COLOR1╰═══════════════════════════════════════════════════╯${NC}"
 echo -e ""
 echo -ne " ${WH}Select menu ${COLOR1}: ${WH}"; read opt
