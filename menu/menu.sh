@@ -375,7 +375,7 @@ echo -e "${GREEN}│${WH}PILIH NOMOR${NC} ${CYAN}[12] ${WH}🔍 MELIHAT USER YAN
 echo -e "${GREEN}╰══${GREEN}══════════════════${GREEN}═════════${GREEN}══════════════════════${GREEN}╯${NC}"
 
 echo -e "${RED}╭═══════${RED}══════ • ${RED}GENOM SCRIPT PRO${RED} • ${RED}════════════════╮${NC}"
-echo -e "${RED}│${WH}PILIH NOMOR${NC} ${CYAN}[15]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC} ${RED} │"
+echo -e "${RED}│${WH}PILIH NOMOR${NC} ${CYAN}[13]    ${WH}🧬 AKSESS GENOM PRO ADMIN 🧬 ${NC} ${RED} │"
 echo -e "${RED}╰══${RED}════════════════${RED}═════════${RED}════════════════════════${RED}╯${NC}"
 
 echo -e "$COLOR1╭═══════════════════════════════════════════════════╮${NC}"
@@ -405,7 +405,7 @@ case $opt in
 10 | 10) clear ; system ;;
 11 | 11) clear ; menu-wc;;
 12 | 12) clear ; online;;
-15 | 15) clear ; admin;;
+13 | 13) clear ; admin;;
 00 | 0) clear ; menu ;;
 *) clear ; menu ;;
 esac
